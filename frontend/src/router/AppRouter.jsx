@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import MainLayout from '../layouts/MainLayout/MainLayout';
+import DashboardLayout from '../layouts/DashboardLayout/DashboardLayout';
 import Loader from '../components/ui/Loader/Loader';
 import ProtectedRoute from '../components/auth/ProtectedRoute/ProtectedRoute';
 
@@ -16,6 +17,10 @@ const OrderSuccessPage = lazy(() => import('../pages/OrderSuccessPage/OrderSucce
 const LoginPage = lazy(() => import('../pages/LoginPage/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage/ForgotPasswordPage'));
+const DashboardPage = lazy(() => import('../pages/DashboardPage/DashboardPage'));
+const OrdersPage = lazy(() => import('../pages/OrdersPage/OrdersPage'));
+const AddressesPage = lazy(() => import('../pages/AddressesPage/AddressesPage'));
+const SettingsPage = lazy(() => import('../pages/SettingsPage/SettingsPage'));
 const ProfilePage = lazy(() => import('../pages/ProfilePage/ProfilePage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage/NotFoundPage'));
 
@@ -47,11 +52,21 @@ export default function AppRouter() {
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<RegisterPage />} />
             <Route path="forgot-password" element={<ForgotPasswordPage />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="account" element={<ProfilePage />} />
-            </Route>
-            <Route path="*" element={<NotFoundPage />} />
           </Route>
+
+          {/* Authenticated account dashboard — replaces the storefront chrome */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="account" element={<DashboardLayout />}>
+              <Route index element={<DashboardPage />} />
+              <Route path="orders" element={<OrdersPage />} />
+              <Route path="wishlist" element={<WishlistPage />} />
+              <Route path="addresses" element={<AddressesPage />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
+          </Route>
+
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </motion.div>
     </Suspense>

@@ -1,0 +1,129 @@
+/* UNSORTED — Account dashboard */
+
+.page {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.welcome {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(120deg, var(--color-accent-ghost), transparent 45%),
+    var(--color-surface);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 4.25rem;
+  height: 4.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: #0a0a0a;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-wide);
+  box-shadow: 0 0 0 4px var(--color-accent-ghost);
+}
+
+.title {
+  margin-top: var(--space-1);
+  font-size: clamp(1.5rem, 1rem + 2.5vw, 2.25rem);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.since {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.cardLink {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.cardLink:hover {
+  color: var(--color-accent);
+}
+
+.empty {
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.wishList {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.wishItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.wishItem:hover {
+  background: var(--color-accent-ghost);
+  transform: translateX(4px);
+}
+
+.wishInfo {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wishName {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wishPrice {
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardLink,
+  .wishItem {
+    transition: none;
+  }
+}

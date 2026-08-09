@@ -1,0 +1,129 @@
+/* ==================================================================
+   UNSORTED — Account dashboard layout shell
+   Desktop: fixed sidebar + scrollable content column.
+   Mobile : full-height drawer + overlay.
+   ================================================================== */
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  margin-inline: auto;
+  max-width: var(--container-max-wide);
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+}
+
+.sidebarDesktop {
+  display: none;
+}
+
+.content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.body {
+  flex: 1;
+  padding: var(--space-6);
+  min-height: 70vh;
+}
+
+/* ---------------- Mobile drawer ---------------- */
+.drawerRoot {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 6, 6, 0.62);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(19rem, 86vw);
+  overflow-y: auto;
+  outline: none;
+  background: var(--color-bg);
+  border-right: 1px solid var(--color-border-strong);
+  box-shadow: 18px 0 48px rgba(0, 0, 0, 0.5);
+}
+
+.drawerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+  flex: none;
+  padding-inline: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.drawerKicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.drawerClose {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.drawerClose:hover {
+  background: var(--color-accent-ghost);
+}
+
+/* ---------------- Breakpoints ---------------- */
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: 16rem minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .sidebarDesktop {
+    display: block;
+    position: sticky;
+    top: var(--header-height);
+    align-self: start;
+    height: calc(100dvh - var(--header-height));
+    overflow-y: auto;
+  }
+
+  .body {
+    padding: var(--space-8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawerClose {
+    transition: none;
+  }
+}
+
+@media (min-width: 1280px) {
+  .layout {
+    max-width: var(--container-max);
+  }
+}
