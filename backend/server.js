@@ -100,12 +100,59 @@ function persistProducts() {
 // =====================
 const app = express();
 
+// =====================
+// CORS configuration — auto-switches between dev and production
+// =====================
+// Hosts such as Render set NODE_ENV=production automatically. Local `npm run
+// dev` leaves it unset, so we default to development mode unless told otherwise.
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Production allow-list is read from CORS_ORIGINS (comma-separated domains).
+// e.g. CORS_ORIGINS=https://unsorted-swart.vercel.app,https://staging.example.com
+function parseCorsOrigins(raw) {
+  return String(raw || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+// Strip trailing slashes / default ports so "https://foo.com/" still matches.
+function normalizeOrigin(origin) {
+  try {
+    return new URL(origin).origin.toLowerCase();
+  } catch {
+    return String(origin || '').replace(/\/+$/, '').toLowerCase();
+  }
+}
+
+const allowedOrigins = isProduction
+  ? new Set(parseCorsOrigins(process.env.CORS_ORIGINS).map(normalizeOrigin))
+  : new Set();
+
+// `origin` receives the request Origin header (or undefined for non-browser
+// requests like curl/Postman/server-to-server). Callback signature:
+//   callback(null, true-ish)  -> reflect the request origin (allow)
+//   callback(null, false)     -> omit the CORS header      (block)
+function corsOrigin(origin, callback) {
+  // Requests without an Origin header are NOT CORS requests — always allow
+  // them (curl, Postman, server-to-server, health checks, etc.).
+  if (!origin) return callback(null, true);
+
+  // Production: only explicit domains listed in CORS_ORIGINS.
+  if (isProduction) {
+    const allowed = allowedOrigins.has(normalizeOrigin(origin));
+    return callback(null, allowed ? origin : false);
+  }
+
+  // Development: allow any localhost / 127.0.0.1 origin, regardless of port
+  // (5173, 5174, 3000, 4173, ...). Anything else stays blocked.
+  const isLocal =
+    /^https?:\/\/(localhost|127\.0\.0\.1)(?::\d+)?$/i.test(origin);
+  return callback(null, isLocal ? origin : false);
+}
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:3001",
-    "https://unsorted-swart.vercel.app"
-  ],
+  origin: corsOrigin,
   credentials: true
 }));
 app.use(express.json());

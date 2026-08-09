@@ -1,11 +1,22 @@
 // API client — single fetch wrapper + asset URL resolution.
 
 const REMOTE_BASE = 'https://unsorted-backend.onrender.com';
+const DEV_BASE = 'http://localhost:3001';
 
-export const API_BASE =
-  typeof window !== 'undefined' && window.location.hostname === 'localhost'
-    ? 'http://localhost:3001'
-    : REMOTE_BASE;
+const isDev =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1');
+
+// In development, API calls go through the Vite dev proxy (same origin), so the
+// browser never performs a CORS cross-origin request regardless of the Vite
+// port. Vite's server.proxy then forwards /api to DEV_BASE (localhost:3001).
+// In production, fall back to the deployed backend URL.
+export const API_BASE = isDev ? '' : REMOTE_BASE;
+
+// <img> tags are not blocked by CORS, so non-/images/ asset filenames can still
+// resolve straight against the backend during development.
+const ASSET_BASE = isDev ? DEV_BASE : REMOTE_BASE;
 
 export async function request(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -33,5 +44,5 @@ export function resolveUrl(src = '') {
   if (!src) return '';
   if (/^(https?:)?\/\//.test(src) || src.startsWith('data:')) return src;
   if (src.startsWith('/images/')) return src;
-  return `${API_BASE}/${String(src).replace(/^\/+/, '')}`;
+  return `${ASSET_BASE}/${String(src).replace(/^\/+/, '')}`;
 }
