@@ -1,0 +1,115 @@
+.item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.item:first-child {
+  border-top: 1px solid var(--color-border);
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  background: none;
+  border: 0;
+  text-align: left;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.header:hover {
+  color: var(--color-accent);
+}
+
+.icon {
+  flex: 0 0 auto;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.open .icon {
+  transform: rotate(45deg);
+}
+
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--dur-slow) var(--ease-out);
+}
+
+.open .panel {
+  grid-template-rows: 1fr;
+}
+
+.panelInner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.content {
+  padding-bottom: var(--space-5);
+  color: var(--color-text-muted);
+  line-height: var(--leading-normal);
+  font-size: var(--text-base);
+}
+
+.content > p + p {
+  margin-top: var(--space-3);
+}
+
+/* ---------------- Size guide table ---------------- */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.table th,
+.table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+  font-weight: var(--weight-medium);
+}
+
+.table td:first-child {
+  font-weight: var(--weight-semibold);
+}
+
+/* ---------------- Lists (shipping & returns) ---------------- */
+.list {
+  display: grid;
+  gap: var(--space-2);
+  padding-left: var(--space-4);
+}
+
+.list li::marker {
+  color: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    transition: none;
+  }
+
+  .icon {
+    transition: none;
+  }
+}

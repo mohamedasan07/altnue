@@ -1,0 +1,119 @@
+.fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.legend {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+  margin-bottom: 0;
+}
+
+.options {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.option {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.option:hover {
+  border-color: var(--color-border-strong);
+}
+
+.optionSelected {
+  border-color: var(--color-accent);
+  background: var(--color-accent-ghost);
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.radio {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 2px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-strong);
+  display: grid;
+  place-items: center;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.optionSelected .radio {
+  border-color: var(--color-accent);
+}
+
+.optionSelected .radio::after {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.price {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.note {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.eta {
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+  margin-top: var(--space-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option,
+  .radio {
+    transition: none;
+  }
+}

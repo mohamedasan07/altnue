@@ -1,0 +1,46 @@
+.link {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.link:hover {
+  color: var(--color-text);
+  background: var(--color-accent-ghost);
+  transform: translateY(-1px);
+}
+
+.badge {
+  position: absolute;
+  top: 0.125rem;
+  right: 0rem;
+  display: grid;
+  place-items: center;
+  min-width: 1rem;
+  height: 1rem;
+  padding-inline: 0.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: #0a0a0a;
+  font-size: 0.625rem;
+  font-weight: var(--weight-bold);
+  line-height: 1;
+}
+
+.value {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+}

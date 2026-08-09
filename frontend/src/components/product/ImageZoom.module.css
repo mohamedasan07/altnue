@@ -1,0 +1,81 @@
+.zoom {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  overflow: hidden;
+}
+
+.open {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: var(--px, 50%) var(--py, 50%);
+  transition: transform 0.7s var(--ease-out);
+}
+
+.zoom:hover .open .img,
+.zoom:focus-within .open .img {
+  transform: scale(1.75);
+}
+
+/* Focus ring on the full-frame button (visible focus state) */
+.open:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -4px;
+  border-radius: var(--radius-md);
+}
+
+/* Touch devices: no hover zoom, rely on tap -> fullscreen */
+@media (hover: none) {
+  .zoom:hover .open .img {
+    transform: none;
+  }
+}
+
+.hint {
+  position: absolute;
+  bottom: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: #fff;
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+  pointer-events: none;
+}
+
+.zoom:hover .hint,
+.zoom:focus-within .hint {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .hint {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .zoom {
+    aspect-ratio: 4 / 5;
+  }
+}

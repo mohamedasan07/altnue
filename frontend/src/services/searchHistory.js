@@ -1,0 +1,60 @@
+// searchHistory — localStorage persistence for recent search terms.
+
+const STORAGE_KEY = 'unsorted_search_history_v1';
+export const MAX_RECENT_SEARCHES = 5;
+
+/** Read the saved list. Never throws — returns [] on any fault. */
+export function loadSearchHistory() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((term) => typeof term === 'string' && term.trim().length > 0)
+      .slice(0, MAX_RECENT_SEARCHES);
+  } catch {
+    return [];
+  }
+}
+
+function persist(items) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch {
+    /* storage unavailable — history runs in memory only */
+  }
+}
+
+/**
+ * Record a search term. Most-recent first, case-insensitive dedupe
+ * (keeps the newest position), trimmed and capped at MAX_RECENT_SEARCHES.
+ */
+export function addSearchHistory(term) {
+  const clean = typeof term === 'string' ? term.trim() : '';
+  if (!clean) return loadSearchHistory();
+
+  const rest = loadSearchHistory().filter(
+    (existing) => existing.toLowerCase() !== clean.toLowerCase()
+  );
+  const next = [clean, ...rest].slice(0, MAX_RECENT_SEARCHES);
+  persist(next);
+  return next;
+}
+
+/** Persist an externally-managed list. */
+export function saveSearchHistory(items) {
+  persist(
+    (Array.isArray(items) ? items : [])
+      .filter((term) => typeof term === 'string' && term.trim().length > 0)
+      .slice(0, MAX_RECENT_SEARCHES)
+  );
+}
+
+export function clearSearchHistory() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* noop */
+  }
+}

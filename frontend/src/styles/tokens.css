@@ -1,0 +1,138 @@
+/* =========================================================
+   UNSORTED — Design Tokens
+   Single source of truth for color, type, space & motion.
+   Dark is the default theme; light overrides on data-theme.
+   ========================================================= */
+
+:root {
+  color-scheme: dark;
+
+  /* ----- Brand / Accent ----- */
+  --color-accent: #ff4757;
+  --color-accent-strong: #ff2d3f;
+  --color-accent-ghost: rgba(255, 71, 87, 0.12);
+
+  /* ----- Surfaces (black & white system) ----- */
+  --color-bg: #0a0a0a;
+  --color-bg-elevated: #101010;
+  --color-surface: #141414;
+  --color-surface-raised: #1b1b1b;
+  --color-border: rgba(255, 255, 255, 0.09);
+  --color-border-strong: rgba(255, 255, 255, 0.18);
+
+  /* ----- Text ----- */
+  --color-text: #f4f4f3;
+  --color-text-muted: #a3a3a3;
+  --color-text-faint: #666666;
+
+  /* ----- Feedback ----- */
+  --color-success: #2ecc71;
+  --color-warning: #f1c40f;
+  --color-danger: #ff4757;
+  --color-focus: #ff4757;
+
+  /* ----- Typography families ----- */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Segoe UI Mono',
+    Menlo, Consolas, monospace;
+
+  /* ----- Type scale (mobile-first, fluid display) ----- */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: clamp(1.75rem, 1.25rem + 2vw, 2.5rem);
+  --text-4xl: clamp(2.25rem, 1rem + 4vw, 4rem);
+  --text-5xl: clamp(3rem, 1.5rem + 5.5vw, 6.5rem);
+
+  /* ----- Type weights / leading / tracking ----- */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 900;
+
+  --leading-tight: 1.04;
+  --leading-snug: 1.25;
+  --leading-normal: 1.6;
+
+  --tracking-tight: -0.03em;
+  --tracking-wide: 0.08em;
+  --tracking-widest: 0.18em;
+
+  /* ----- Spacing scale (4px base grid) ----- */
+  --space-0: 0rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  --page-block: clamp(3rem, 2rem + 6vw, 7rem);
+
+  /* ----- Layout ----- */
+  --container-max: 72rem;
+  --container-max-wide: 84rem;
+  --container-pad: clamp(1rem, 4vw, 2rem);
+  --header-height: 4rem;
+
+  /* ----- Radii ----- */
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-pill: 999px;
+
+  /* ----- Elevation ----- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.6);
+
+  /* ----- Z-index scale ----- */
+  --z-header: 100;
+  --z-overlay: 500;
+  --z-modal: 600;
+  --z-toast: 900;
+
+  /* ----- Motion ----- */
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  --dur-slow: 460ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ----- Responsive breakpoints (documentation)
+     sm: 640px   md: 768px   lg: 1024px   xl: 1280px   2xl: 1536px
+     Consumed as: @media (min-width: 640px) { ... }
+  ----- */
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+
+  --color-bg: #fafafa;
+  --color-bg-elevated: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f5f5f5;
+  --color-border: rgba(10, 10, 10, 0.1);
+  --color-border-strong: rgba(10, 10, 10, 0.2);
+
+  --color-text: #0a0a0a;
+  --color-text-muted: #565656;
+  --color-text-faint: #909090;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.16);
+}

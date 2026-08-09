@@ -1,0 +1,43 @@
+.btn {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.sm {
+  width: 2.25rem;
+  height: 2.25rem;
+  background: color-mix(in srgb, var(--color-bg) 78%, transparent);
+}
+
+.md {
+  width: 3rem;
+  height: 3rem;
+  background: transparent;
+}
+
+.btn:hover {
+  color: #ff3b3b;
+  border-color: var(--color-accent);
+}
+
+.active {
+  color: var(--color-accent);
+}
+
+.icon {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}

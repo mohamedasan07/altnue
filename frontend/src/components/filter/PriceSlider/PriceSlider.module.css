@@ -1,0 +1,113 @@
+.wrap {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.values {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.valueLabel {
+  margin-right: var(--space-2);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.track {
+  position: relative;
+  height: 1rem;
+}
+
+.rail {
+  position: absolute;
+  top: 0.4375rem;
+  left: 0;
+  right: 0;
+  height: 0.125rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-border-strong);
+}
+
+.fill {
+  position: absolute;
+  top: 0.4375rem;
+  height: 0.125rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+}
+
+.range {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1rem;
+  margin: 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: none;
+}
+
+.rangeLow {
+  z-index: 3;
+}
+
+.rangeHigh {
+  z-index: 2;
+}
+
+/* ---- WebKit thumbs/tracks ---- */
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 2px solid var(--color-accent);
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+  pointer-events: auto;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.range::-webkit-slider-runnable-track {
+  background: transparent;
+}
+
+/* ---- Firefox thumbs/tracks (Firefox 71+ single pair for both) ---- */
+.range::-moz-range-thumb {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+  pointer-events: auto;
+}
+
+.range::-moz-range-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .range::-webkit-slider-thumb {
+    transition: none;
+  }
+}

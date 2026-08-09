@@ -1,0 +1,104 @@
+import { memo } from 'react';
+import { Link } from 'react-router-dom';
+import { formatINR } from '../../../utils/format';
+import styles from './OrderSummary.module.css';
+
+/**
+ * Compact read-only order summary: mini cart lines + price breakdown.
+ * Used in the checkout sidebar (desktop) and collapsed view (mobile).
+ */
+function OrderSummary({ items, totals, coupon, deliveryLabel }) {
+  const rows = [
+    { label: 'Subtotal', value: formatINR(totals.subtotal) },
+    { label: 'Coupon', value: totals.discount ? `− ${formatINR(totals.discount)}` : null },
+    {
+      label: 'Delivery',
+      value: totals.shipping === 0 ? 'Free' : formatINR(totals.shipping),
+      sub: deliveryLabel,
+    },
+    { label: 'Taxes', value: formatINR(totals.tax), sub: 'GST included' },
+  ];
+
+  return (
+    <section className={styles.summary} aria-label="Order summary">
+      <header className={styles.header}>
+        <h2 className={styles.title}>Your order</h2>
+        <span className={styles.count}>
+          {totals.count} {totals.count === 1 ? 'item' : 'items'}
+        </span>
+      </header>
+
+      <ul className={styles.lines}>
+        {items.map((item) => (
+          <li key={`${item.productId}-${item.size}-${item.color}`} className={styles.line}>
+            <Link to={`/product/${item.productId}`} className={styles.thumbLink}>
+              {item.imageUrl ? (
+                <img
+                  className={styles.thumb}
+                  src={item.imageUrl}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => {
+                    e.currentTarget.style.opacity = '0';
+                  }}
+                />
+              ) : (
+                <span className={styles.thumbFallback} aria-hidden="true">
+                  {(item.name || '?').charAt(0)}
+                </span>
+              )}
+              <span className={styles.qty}>×{Number(item.quantity) || 0}</span>
+            </Link>
+            <div className={styles.lineBody}>
+              <Link to={`/product/${item.productId}`} className={styles.name}>
+                {item.name}
+              </Link>
+              <p className={styles.meta}>
+                {item.size}
+                {item.colorName && (
+                  <>
+                    <span className={styles.sep}>·</span>
+                    {item.colorName}
+                  </>
+                )}
+              </p>
+            </div>
+            <span className={styles.linePrice}>{formatINR((Number(item.price) || 0) * (Number(item.quantity) || 0))}</span>
+          </li>
+        ))}
+      </ul>
+
+      {coupon && (
+        <p className={styles.couponNote}>
+          {coupon.label} applied
+        </p>
+      )}
+
+      <dl className={styles.rows}>
+        {rows.map((row) =>
+          row.value == null ? null : (
+            <div key={row.label} className={styles.row}>
+              <dt className={styles.rowLabel}>{row.label}</dt>
+              <dd className={styles.rowValue}>
+                {row.sub && <span className={styles.rowSub}>{row.sub}</span>}
+                {row.value}
+              </dd>
+            </div>
+          ),
+        )}
+      </dl>
+
+      <div className={styles.total}>
+        <span className={styles.totalLabel}>Total</span>
+        <span className={styles.totalValue}>{formatINR(totals.grandTotal)}</span>
+      </div>
+
+      <p className={styles.note}>
+        Taxes and delivery are final — no surprise charges at checkout.
+      </p>
+    </section>
+  );
+}
+
+export default memo(OrderSummary);

@@ -1,0 +1,215 @@
+.page {
+  padding-block: var(--space-12) var(--page-block);
+}
+
+.header {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+
+.title {
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+/* ---------------- Category chips ---------------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+}
+
+/* ---------------- Layout: rail + results ---------------- */
+.layout {
+  display: grid;
+  gap: var(--space-10);
+  margin-top: var(--space-8);
+  align-items: start;
+}
+
+.rail {
+  display: none;
+}
+
+.results {
+  display: grid;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.clearAll {
+  margin-left: var(--space-3);
+  padding: var(--space-1) 0;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--color-accent);
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.clearAll:hover {
+  opacity: 0.75;
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.filterToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.filterToggle:hover {
+  border-color: var(--color-text);
+  transform: translateY(-1px);
+}
+
+.filterCount {
+  display: grid;
+  place-items: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding-inline: 0.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: #0a0a0a;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: var(--weight-bold);
+  line-height: 1;
+}
+
+/* ---------------- Mobile filter drawer ---------------- */
+.drawerRoot {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 0;
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(22rem, 88vw);
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  border-left: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+  outline: none;
+}
+
+.drawerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--container-pad);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.drawerTitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+}
+
+.drawerClose {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.drawerClose:hover {
+  color: var(--color-text);
+  background: var(--color-accent-ghost);
+}
+
+.drawerBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-6) var(--container-pad) calc(var(--space-8) + env(safe-area-inset-bottom));
+}
+
+/* ---------------- Breakpoints ---------------- */
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: 15rem minmax(0, 1fr);
+  }
+
+  .rail {
+    display: block;
+  }
+
+  .filterToggle {
+    display: none;
+  }
+
+  .drawerRoot {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .page {
+    padding-block: var(--space-16) var(--page-block);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clearAll,
+  .filterToggle,
+  .drawerClose {
+    transition: none;
+  }
+}

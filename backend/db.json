@@ -1,17 +1,6 @@
 {
   "products": [
     {
-      "id": 10,
-      "name": "Hawaiian Shirt",
-      "description": "Bold Hawaiian print shirt. Tropical vibes, streetwear attitude.",
-      "category": "shirts",
-      "price": 1649,
-      "oldPrice": 2099,
-      "imageUrl": "/images/shirt_3.jpg",
-      "stockQuantity": 20,
-      "sale": false
-    },
-    {
       "id": 11,
       "name": "Oxford Shirt",
       "description": "Clean Oxford shirt with a relaxed fit. Smart-casual staple.",

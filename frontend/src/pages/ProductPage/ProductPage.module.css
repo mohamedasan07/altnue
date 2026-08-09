@@ -1,0 +1,402 @@
+.section {
+  /* container padding handled by `.page` in MainLayout pages */
+}
+
+.page {
+  /* .page base provides max-width + pad; keep top spacing for PDP */
+  padding-block: var(--space-8) var(--page-block);
+}
+
+.notFound {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+}
+
+.backToBags {
+  margin-top: var(--space-2);
+  display: inline-block;
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--color-accent);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-accent);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.backToBags:hover {
+  color: var(--color-text);
+}
+
+/* Breadcrumbs */
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.crumbs a {
+  color: var(--color-text-muted);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.crumbs a:hover {
+  color: var(--color-accent);
+}
+
+.crumbsSeparator {
+  color: var(--color-text-faint);
+}
+
+.crumbsCurrent {
+  color: var(--color-text);
+}
+
+/* Main two-column layout */
+.article {
+  display: grid;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.gallery {
+  min-width: 0;
+}
+
+.info {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-6);
+}
+
+/* Sticky gallery on desktop */
+@media (min-width: 1024px) {
+  .article {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: var(--space-12);
+  }
+
+  .gallery {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+    align-self: start;
+  }
+}
+
+/* ---------------- Info details ---------------- */
+.cat {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: var(--space-3);
+}
+
+.title {
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.02;
+  text-transform: uppercase;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.reviews {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-faint);
+}
+
+.priceBlock {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.price {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
+}
+
+.old {
+  font-size: var(--text-base);
+  color: var(--color-text-faint);
+  text-decoration: line-through;
+}
+
+.discount {
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+  color: #0a0a0a;
+}
+
+.availability {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+}
+
+.availabilityLow {
+  color: var(--color-accent);
+}
+
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: #16a34a;
+}
+
+.availabilityLow .dot {
+  background: var(--color-accent);
+}
+
+.desc {
+  max-width: 46ch;
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-text-muted);
+}
+
+.choosers {
+  display: grid;
+  gap: var(--space-5);
+}
+
+/* ---------------- Actions ---------------- */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: var(--space-3);
+  align-items: stretch;
+}
+.add,
+.buy {
+  padding: 0.85rem var(--space-5);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.add {
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  color: #0a0a0a;
+}
+
+.add:hover {
+  transform: translateY(-1px);
+  background: var(--color-accent-strong);
+  border-color: var(--color-accent-strong);
+}
+
+.add.added {
+  background: #16a34a;
+  border-color: #16a34a;
+}
+
+.buy {
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.buy:hover {
+  border-color: var(--color-text);
+  transform: translateY(-1px);
+}
+
+.actions .wishlist {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.actions .wishlist:hover {
+  border-color: var(--color-text);
+  transform: translateY(-1px);
+}
+
+.add:disabled,
+.buy:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.accordion {
+  margin-top: var(--space-2);
+}
+
+/* ---------------- Accordion content specifics ---------------- */
+.sizeTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.sizeTable th,
+.sizeTable td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+.sizeTable th {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+  font-weight: var(--weight-medium);
+}
+
+.sizeTable td:first-child {
+  font-weight: var(--weight-semibold);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-2);
+  padding-left: var(--space-4);
+}
+
+.list li::marker {
+  color: var(--color-accent);
+}
+
+/* ---------------- Rails below ---------------- */
+.rails {
+  display: grid;
+  gap: var(--space-6);
+  margin-top: var(--space-16);
+}
+
+/* ---------------- Share ---------------- */
+.share {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.shareLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.shareButtons {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.shareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-elevated);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.shareBtn:hover {
+  color: var(--color-text);
+  border-color: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wishlist,
+  .add,
+  .buy {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ---------------- Responsive: actions + share ---------------- */
+@media (max-width: 480px) {
+  .actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .actions .wishlist {
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 3rem;
+  }
+
+  .share {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+}

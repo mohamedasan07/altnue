@@ -1,0 +1,50 @@
+import { Suspense, lazy } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import MainLayout from '../layouts/MainLayout/MainLayout';
+import Loader from '../components/ui/Loader/Loader';
+
+// Code-split pages: each is its own chunk, loaded on first visit.
+const HomePage = lazy(() => import('../pages/HomePage/HomePage'));
+const CollectionsPage = lazy(() => import('../pages/CollectionsPage/CollectionsPage'));
+const ProductPage = lazy(() => import('../pages/ProductPage/ProductPage'));
+const WishlistPage = lazy(() => import('../pages/WishlistPage/WishlistPage'));
+const CartPage = lazy(() => import('../pages/CartPage/CartPage'));
+const CheckoutPage = lazy(() => import('../pages/CheckoutPage/CheckoutPage'));
+const OrderSuccessPage = lazy(() => import('../pages/OrderSuccessPage/OrderSuccessPage'));
+const LoginPage = lazy(() => import('../pages/LoginPage/LoginPage'));
+const NotFoundPage = lazy(() => import('../pages/NotFoundPage/NotFoundPage'));
+
+const TRANSITION = { duration: 0.3, ease: [0.22, 1, 0.36, 1] };
+
+export default function AppRouter() {
+  const location = useLocation();
+
+  return (
+    <Suspense fallback={<Loader fullscreen label="Loading page" />}>
+      {/* Keyed by pathname so each navigation replays the entry transition */}
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={TRANSITION}
+        style={{ display: 'flex', flexDirection: 'column', flex: 1 }}
+      >
+        <Routes location={location}>
+          <Route element={<MainLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="collections" element={<CollectionsPage />} />
+            <Route path="collections/:categoryId" element={<CollectionsPage />} />
+            <Route path="product/:productId" element={<ProductPage />} />
+            <Route path="wishlist" element={<WishlistPage />} />
+            <Route path="cart" element={<CartPage />} />
+            <Route path="checkout" element={<CheckoutPage />} />
+            <Route path="checkout/success" element={<OrderSuccessPage />} />
+            <Route path="login" element={<LoginPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+      </motion.div>
+    </Suspense>
+  );
+}

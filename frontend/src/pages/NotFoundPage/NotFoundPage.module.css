@@ -1,0 +1,15 @@
+.section {
+  min-height: 50vh;
+}
+
+.title {
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.cta {
+  margin-top: var(--space-4);
+  width: fit-content;
+}

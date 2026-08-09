@@ -1,0 +1,85 @@
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useTheme } from '../../hooks/useTheme';
+import { cn } from '../../utils/cn';
+import Container from '../ui/Container/Container';
+import Logo from './Logo';
+import NavLinks from './NavLinks';
+import SearchButton from './SearchButton';
+import WishlistBadge from '../wishlist/WishlistBadge/WishlistBadge';
+import CartButton from './CartButton';
+import ProfileButton from './ProfileButton';
+import Hamburger from './Hamburger';
+import MobileMenu from './MobileMenu';
+import styles from './Navbar.module.css';
+
+/**
+ * Premium navigation shell.
+ * - Sticky, transparent over the hero, solidifies on scroll.
+ * - Reveals on mount; mobile menu is a full-screen overlay.
+ */
+export default function Navbar() {
+  const { theme, toggleTheme } = useTheme();
+  const { pathname } = useLocation();
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Track scroll for the sticky appearance change.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Transparent only while at the very top of the home page.
+  const isHero = pathname === '/' && !scrolled;
+
+  // Close the mobile menu on navigation.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  return (
+    <motion.header
+      className={cn(
+        styles.navbar,
+        !isHero && styles.navbarSolid,
+        scrolled && styles.navbarScrolled
+      )}
+      initial={{ y: -72, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <Container className={styles.navInner}>
+        <Logo />
+
+        <nav className={styles.desktopNav} aria-label="Primary">
+          <NavLinks />
+        </nav>
+
+        <div className={styles.navActions}>
+          <button
+            type="button"
+            className={styles.iconBtn}
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+            title={theme === 'dark' ? 'Light theme' : 'Dark theme'}
+          >
+            {theme === 'dark' ? '●' : '○'}
+          </button>
+
+          <SearchButton />
+          <WishlistBadge />
+          <CartButton />
+          <ProfileButton />
+
+          <Hamburger open={menuOpen} onClick={() => setMenuOpen((v) => !v)} />
+        </div>
+      </Container>
+
+      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+    </motion.header>
+  );
+}
