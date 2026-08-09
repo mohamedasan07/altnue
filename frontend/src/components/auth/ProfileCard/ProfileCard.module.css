@@ -1,0 +1,190 @@
+/* UNSORTED — Profile card */
+
+.card {
+  display: grid;
+  gap: var(--space-8);
+  padding: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: var(--radius-pill);
+  background:
+    linear-gradient(135deg, var(--color-accent-ghost), transparent),
+    var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-accent);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-wide);
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.name {
+  margin-top: var(--space-1);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.email {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.item {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.item dt {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.item dd {
+  font-size: var(--text-base);
+  color: var(--color-text);
+}
+
+.editor {
+  display: grid;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.editGrid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .editGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.editActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.save,
+.edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  padding-inline: var(--space-6);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: #0a0a0a;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.save:hover,
+.edit:hover {
+  background: var(--color-accent-strong);
+  transform: translateY(-1px);
+}
+
+.cancel,
+.logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  padding-inline: var(--space-6);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.cancel:hover {
+  border-color: var(--color-text);
+  transform: translateY(-1px);
+}
+
+.logout {
+  margin-left: auto;
+  align-self: center;
+  padding: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.logout:hover {
+  color: var(--color-danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .save,
+  .edit,
+  .cancel,
+  .logout {
+    transition: none;
+  }
+}

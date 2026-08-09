@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import ProfileDropdown from '../auth/ProfileDropdown/ProfileDropdown';
 import styles from './Navbar.module.css';
 
 const PROFILE_ICON = (
@@ -19,13 +21,20 @@ const PROFILE_ICON = (
 );
 
 /**
- * Profile button — no authentication yet. Routes to login.
+ * Profile button — logged out shows a login icon; logged in shows the avatar
+ * and an account dropdown (Profile / Wishlist / Orders / Logout).
  */
 export default function ProfileButton() {
+  const { user } = useAuth();
+
+  if (user) {
+    return <ProfileDropdown user={user} />;
+  }
+
   return (
-    <Link to="/login" className={styles.iconLink} aria-label="Profile and login">
+    <Link to="/login" className={styles.iconLink} aria-label="Login and create account">
       {PROFILE_ICON}
-      <span className="visually-hidden">Profile</span>
+      <span className="visually-hidden">Login</span>
     </Link>
   );
 }

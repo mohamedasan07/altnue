@@ -1,0 +1,45 @@
+/* UNSORTED — Social sign-in (UI only) */
+
+.providers {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  height: 3rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.button:hover {
+  border-color: var(--color-text);
+  background: var(--color-surface);
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.label {
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}

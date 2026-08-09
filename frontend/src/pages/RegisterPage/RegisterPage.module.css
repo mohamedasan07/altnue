@@ -1,4 +1,4 @@
-/* UNSORTED — Login page */
+/* UNSORTED — Register page */
 
 .section {
   display: flex;
@@ -22,7 +22,7 @@
 
 .card {
   width: 100%;
-  max-width: 26rem;
+  max-width: 32rem;
   display: grid;
   gap: var(--space-6);
   margin-top: var(--space-10);
@@ -30,29 +30,6 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
-}
-
-.divider {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--color-border);
-}
-
-.divider span {
-  padding-inline: var(--space-4);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--color-text-faint);
 }
 
 .switch {

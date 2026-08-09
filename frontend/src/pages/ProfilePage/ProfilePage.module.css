@@ -1,0 +1,18 @@
+/* UNSORTED — Profile page */
+
+.section {
+  display: grid;
+  align-content: start;
+}
+
+.header {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.title {
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}

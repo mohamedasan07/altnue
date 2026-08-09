@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import MainLayout from '../layouts/MainLayout/MainLayout';
 import Loader from '../components/ui/Loader/Loader';
+import ProtectedRoute from '../components/auth/ProtectedRoute/ProtectedRoute';
 
 // Code-split pages: each is its own chunk, loaded on first visit.
 const HomePage = lazy(() => import('../pages/HomePage/HomePage'));
@@ -13,6 +14,9 @@ const CartPage = lazy(() => import('../pages/CartPage/CartPage'));
 const CheckoutPage = lazy(() => import('../pages/CheckoutPage/CheckoutPage'));
 const OrderSuccessPage = lazy(() => import('../pages/OrderSuccessPage/OrderSuccessPage'));
 const LoginPage = lazy(() => import('../pages/LoginPage/LoginPage'));
+const RegisterPage = lazy(() => import('../pages/RegisterPage/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage/ForgotPasswordPage'));
+const ProfilePage = lazy(() => import('../pages/ProfilePage/ProfilePage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage/NotFoundPage'));
 
 const TRANSITION = { duration: 0.3, ease: [0.22, 1, 0.36, 1] };
@@ -41,6 +45,11 @@ export default function AppRouter() {
             <Route path="checkout" element={<CheckoutPage />} />
             <Route path="checkout/success" element={<OrderSuccessPage />} />
             <Route path="login" element={<LoginPage />} />
+            <Route path="register" element={<RegisterPage />} />
+            <Route path="forgot-password" element={<ForgotPasswordPage />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="account" element={<ProfilePage />} />
+            </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
