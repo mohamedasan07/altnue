@@ -6,9 +6,12 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "seed:products": "node database/seed/seed-products.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2"

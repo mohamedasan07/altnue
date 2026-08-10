@@ -6,6 +6,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
+// Sprint 13A foundation — modular API (health + future routes), centralized
+// error handling, and external-service connectivity checks.
+import apiRouter from './routes/index.js';
+import { notFound } from './middleware/notFound.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import { verifyConnections } from './services/connection.service.js';
+import { listProducts } from './services/product.service.js';
+import { logger } from './utils/logger.js';
+
 dotenv.config();
 
 // =====================
@@ -276,20 +285,12 @@ app.post('/admin/logout', (req, res) => {
 });
 
 // =====================
-// Products API — PUBLIC reads, ADMIN writes
+// Products API — PUBLIC reads (Supabase), ADMIN writes (legacy db.json)
 // =====================
-
-// GET /api/products — Public
-app.get('/api/products', (req, res) => {
-  res.json(db.products.map(normalizeProduct));
-});
-
-// GET /api/products/:id — Public
-app.get('/api/products/:id', (req, res) => {
-  const product = findProduct(req.params.id);
-  if (!product) return res.status(404).json({ error: 'Product not found' });
-  res.json(normalizeProduct(product));
-});
+// Sprint 13B: GET /api/products and GET /api/products/:id are served by the
+// modular product router (repositories → services → Supabase) mounted below.
+// The legacy admin write routes below still target db.json until admin CRUD
+// is migrated in a later sprint.
 
 // POST /api/products — Admin only
 app.post('/api/products', (req, res) => {
@@ -488,14 +489,36 @@ app.delete('/api/users/:id', requireAdmin, (req, res) => {
 });
 
 // =====================
+// Modular API — Sprint 13A foundation
+// =====================
+// Mounted after the legacy routes so it only handles paths they don't claim.
+// `apiRouter` currently exposes GET /api/health; future sprints register their
+// route modules in routes/index.js.
+app.use('/api', apiRouter);
+
+// Unmatched /api/* paths get a JSON 404 (previously fell through to index.html).
+app.use('/api', notFound);
+
+// Centralized error handler — always last.
+app.use(errorHandler);
+
+// =====================
 // Start Server
 // =====================
 const PORT = process.env.PORT || 3001;
 const HOST = process.env.HOST || '0.0.0.0';
 
+// Verify Supabase + Cloudinary connectivity in the background. Never blocks
+// startup: the API must stay up even if credentials are absent locally.
+verifyConnections().catch((err) => logger.error('Connection verification failed:', err));
+
 app.listen(PORT, HOST, () => {
   console.log(`UNSORTED backend running on http://${HOST}:${PORT}`);
-  console.log(`  Products: ${db.products.length}`);
   console.log(`  Images dir: ${imagesDir}`);
   console.log(`  Admin: http://localhost:${PORT}/admin`);
+  console.log(`  Health: http://localhost:${PORT}/api/health`);
+  // Product source moved to Supabase in Sprint 13B — report the live count.
+  listProducts()
+    .then((products) => console.log(`  Products (Supabase): ${products.length}`))
+    .catch(() => console.log('  Products (Supabase): unavailable'));
 });
