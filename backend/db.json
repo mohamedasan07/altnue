@@ -7,7 +7,7 @@
       "category": "shirts",
       "price": 1899,
       "oldPrice": 2499,
-      "imageUrl": "/images/ralph_lauren.jpg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373901/unsorted/products/ralph_lauren.jpg",
       "stockQuantity": 55,
       "sale": false
     },
@@ -18,7 +18,7 @@
       "category": "tshirts",
       "price": 1599,
       "oldPrice": 2199,
-      "imageUrl": "/images/tshirt_1.jpeg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373905/unsorted/products/tshirt_1.jpg",
       "stockQuantity": 60,
       "sale": true
     },
@@ -29,7 +29,7 @@
       "category": "tshirts",
       "price": 1449,
       "oldPrice": 1999,
-      "imageUrl": "/images/tshirt_2.jpeg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373912/unsorted/products/tshirt_2.jpg",
       "stockQuantity": 70,
       "sale": false
     },
@@ -40,7 +40,7 @@
       "category": "tshirts",
       "price": 2099,
       "oldPrice": 2899,
-      "imageUrl": "/images/tshirt_3.jpeg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373919/unsorted/products/tshirt_3.jpg",
       "stockQuantity": 30,
       "sale": true
     },
@@ -51,7 +51,7 @@
       "category": "tshirts",
       "price": 2399,
       "oldPrice": 2999,
-      "imageUrl": "/images/tshirt_4.jpg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373921/unsorted/products/tshirt_4.jpg",
       "stockQuantity": 80,
       "sale": false
     },
@@ -62,7 +62,7 @@
       "category": "accessories",
       "price": 1490,
       "oldPrice": 1990,
-      "imageUrl": "/images/accessory1_cap.jpeg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373923/unsorted/products/accessory1_cap.jpg",
       "stockQuantity": 50,
       "sale": true
     },
@@ -73,7 +73,7 @@
       "category": "accessories",
       "price": 31,
       "oldPrice": 3999,
-      "imageUrl": "/images/accessory3_bag.jpeg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373925/unsorted/products/accessory3_bag.jpg",
       "stockQuantity": 50,
       "sale": true
     },
@@ -84,7 +84,7 @@
       "category": "accessories",
       "price": 3434,
       "oldPrice": 33333,
-      "imageUrl": "/images/accessory3_bag.jpeg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373925/unsorted/products/accessory3_bag.jpg",
       "stockQuantity": 23,
       "sale": true
     },
@@ -95,7 +95,7 @@
       "category": "tshirts",
       "price": 888,
       "oldPrice": 1299,
-      "imageUrl": "/images/tshirt_1.jpeg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373905/unsorted/products/tshirt_1.jpg",
       "stockQuantity": 10,
       "sale": false
     },
@@ -106,7 +106,7 @@
       "category": "jerseys",
       "price": 23,
       "oldPrice": 33,
-      "imageUrl": "nakada.jpg.jpeg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373930/unsorted/products/nakada.jpg",
       "stockQuantity": 3,
       "sale": false
     },
@@ -117,7 +117,7 @@
       "category": "accessories",
       "price": 3,
       "oldPrice": 33,
-      "imageUrl": "/images/accessory3_bag.jpeg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373925/unsorted/products/accessory3_bag.jpg",
       "stockQuantity": 33,
       "sale": false
     },
@@ -128,7 +128,7 @@
       "category": "jerseys",
       "price": 33,
       "oldPrice": 3,
-      "imageUrl": "acmilan.jpg.jpeg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373936/unsorted/products/acmilan.jpg",
       "stockQuantity": 33,
       "sale": true
     },
@@ -139,7 +139,7 @@
       "category": "jerseys",
       "price": 33,
       "oldPrice": 333,
-      "imageUrl": "/images/baggy_2.jpg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373938/unsorted/products/baggy_2.jpg",
       "stockQuantity": 333,
       "sale": false
     },
@@ -150,7 +150,7 @@
       "category": "baggy",
       "price": 444,
       "oldPrice": 4444,
-      "imageUrl": "acmilan.jpg.jpeg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373936/unsorted/products/acmilan.jpg",
       "stockQuantity": 33,
       "sale": true
     },
@@ -161,7 +161,7 @@
       "category": "baggy",
       "price": 1,
       "oldPrice": 111113333,
-      "imageUrl": "/images/baggy_2.jpg",
+      "imageUrl": "https://res.cloudinary.com/jtfzpgol/image/upload/v1786373938/unsorted/products/baggy_2.jpg",
       "stockQuantity": 9,
       "sale": true
     }

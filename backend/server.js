@@ -24,7 +24,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 const dbPath = path.resolve(__dirname, 'db.json');
-const imagesDir = path.resolve(projectRoot, 'images');
 const adminRoot = path.resolve(projectRoot, 'admin');
 
 // =====================
@@ -169,14 +168,18 @@ app.use(express.json());
 // =====================
 // Static file serving
 // =====================
-// Serve product images
-app.use('/images', express.static(imagesDir));
-app.use('/image', express.static(imagesDir));
+// Product images are hosted on Cloudinary (Sprint 14A) — the local images/
+// folder is no longer served by the backend.
 
 // Serve admin static assets only (CSS, JS — NOT index.html, which needs auth check)
 app.use('/admin', express.static(adminRoot, {
   index: false  // Don't serve index.html automatically, let route handlers manage it
 }));
+
+// Product images are hosted on Cloudinary (Sprint 14A). Explicitly 404 the old
+// /images and /image endpoints so nothing can fall back to the local folder.
+app.use('/image', (req, res) => res.status(404).json({ error: 'Not found' }));
+app.use('/images', (req, res) => res.status(404).json({ error: 'Not found' }));
 
 // Serve customer-facing static files (index.html, style.css, script.js)
 app.use(express.static(projectRoot, {
@@ -514,7 +517,6 @@ verifyConnections().catch((err) => logger.error('Connection verification failed:
 
 app.listen(PORT, HOST, () => {
   console.log(`UNSORTED backend running on http://${HOST}:${PORT}`);
-  console.log(`  Images dir: ${imagesDir}`);
   console.log(`  Admin: http://localhost:${PORT}/admin`);
   console.log(`  Health: http://localhost:${PORT}/api/health`);
   // Product source moved to Supabase in Sprint 13B — report the live count.

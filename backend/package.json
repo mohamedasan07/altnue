@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "seed:products": "node database/seed/seed-products.js"
+    "seed:products": "node database/seed/seed-products.js",
+    "migrate:images": "node database/seed/migrate-images.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",

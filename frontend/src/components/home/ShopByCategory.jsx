@@ -8,31 +8,31 @@ const CATEGORIES = [
   {
     name: 'Jerseys',
     slug: 'jerseys',
-    image: '/images/acmilan.jpeg',
+    image: 'https://res.cloudinary.com/jtfzpgol/image/upload/v1786373936/unsorted/products/acmilan.jpg',
     span: 'wide',
   },
   {
     name: 'T-Shirts',
     slug: 'tshirts',
-    image: '/images/tshirt_1.jpeg',
+    image: 'https://res.cloudinary.com/jtfzpgol/image/upload/v1786373905/unsorted/products/tshirt_1.jpg',
     span: 'wide',
   },
   {
     name: 'Shirts',
     slug: 'shirts',
-    image: '/images/shirt_1.jpg',
+    image: 'https://res.cloudinary.com/jtfzpgol/image/upload/v1786376390/unsorted/products/shirt_1.jpg',
     span: 'tall',
   },
   {
     name: 'Baggy',
     slug: 'baggy',
-    image: '/images/baggy_1.jpg',
+    image: 'https://res.cloudinary.com/jtfzpgol/image/upload/v1786376372/unsorted/products/baggy_1.jpg',
     span: 'tall',
   },
   {
     name: 'Accessories',
     slug: 'accessories',
-    image: '/images/accessory1_cap.jpeg',
+    image: 'https://res.cloudinary.com/jtfzpgol/image/upload/v1786373923/unsorted/products/accessory1_cap.jpg',
     span: 'wide',
   },
 ];
