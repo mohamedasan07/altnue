@@ -29,14 +29,45 @@ export async function request(path, options = {}) {
   return res.json();
 }
 
+// Local product assets were migrated to Cloudinary (Sprint 14A). The public id
+// of each asset is the original filename with image extensions stripped and
+// slugified, e.g. "/images/tshirt_1.jpeg" -> "tshirt_1". Bucketing them under
+// the same URL scheme lets us mine stale snapshots (persisted wishlist/cart
+// entries saved before the migration) without the local folder.
+const CLOUDINARY_ASSET_ROOT = 'https://res.cloudinary.com/jtfzpgol/image/upload/unsorted/products';
+const LEGACY_IMAGE_EXTENSIONS = ['.jpeg', '.jpg', '.png', '.webp', '.gif', '.avif', '.svg', '.bmp', '.jfif', '.pjpeg', '.pjp'];
+
+function coreImageName(value) {
+  let name = String(value || '').trim();
+  let previous;
+  do {
+    previous = name;
+    const lower = name.toLowerCase();
+    for (const ext of LEGACY_IMAGE_EXTENSIONS) {
+      if (lower.endsWith(ext)) {
+        name = name.slice(0, -ext.length);
+        break;
+      }
+    }
+  } while (name !== previous);
+  return name;
+}
+
+function migrateLegacyImageUrl(src) {
+  const basename = coreImageName(String(src || '').split(/[\\/]/).pop() || '');
+  const publicId = basename.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  if (!publicId) return '';
+  return `${CLOUDINARY_ASSET_ROOT}/${publicId}.jpg`;
+}
+
 /**
  * Resolve a product asset URL.
- * Products are served from Cloudinary, so absolute URLs (http/https,
- * protocol-relative or data URIs) pass through unchanged. There is no longer
- * any serveable local asset path to fall back to.
+ * Cloudinary URLs (http/https, protocol-relative or data URIs) pass through
+ * unchanged. Anything else is treated as a legacy local asset path and mapped
+ * to its Cloudinary equivalent; unrecognized values resolve to ''.
  */
 export function resolveUrl(src = '') {
   if (!src) return '';
   if (/^(https?:)?\/\//.test(src) || src.startsWith('data:')) return src;
-  return '';
+  return migrateLegacyImageUrl(src);
 }
