@@ -1,17 +1,25 @@
-# UNSORTED Backend (Node.js + Express)
+# UNSORTED Backend (Node.js + Express + Supabase)
 
-Production-ready foundation (Sprint 13A) layered on top of the existing
-single-file Express server. The legacy API (products, admin, cart) is
-**untouched** — this sprint only adds the backend foundation:
+Production-ready backend for the UNSORTED store. All product data lives in
+Supabase (PostgreSQL); there is **no `db.json`** and no filesystem persistence.
 
-- Supabase (PostgreSQL) client
-- Cloudinary client
-- Clean folder separation (config → routes → controllers → services → repositories)
-- Centralized environment configuration
-- `GET /api/health` liveness endpoint
-- Initial database schema + migration SQL
+Architecture (single consistent flow):
 
-Frontend still uses LocalStorage — **no data migration happens in this sprint**.
+```
+routes
+  ↓
+controllers
+  ↓
+services
+  ↓
+repositories
+  ↓
+Supabase
+```
+
+- Controllers: parse requests, validate payloads, shape responses.
+- Services: business logic (slug generation, category resolution, statuses).
+- Repositories: data access — the only layer that talks to Supabase.
 
 ---
 
@@ -33,18 +41,22 @@ Copy `.env.example` to `.env` and fill in real values:
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `SUPABASE_URL` | for DB work | Supabase project URL (Project Settings → API) |
-| `SUPABASE_ANON_KEY` | for DB work | Supabase anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | optional | Server-only key; bypasses RLS. Preferred once auth/CRUD lands |
-| `CLOUDINARY_CLOUD_NAME` | for images | Cloudinary account cloud name |
-| `CLOUDINARY_API_KEY` | for images | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | for images | Cloudinary API secret |
+| `SUPABASE_URL` | yes | Supabase project URL (Project Settings → API) |
+| `SUPABASE_SERVICE_ROLE_KEY` | yes | Server-only key; bypasses RLS |
+| `SUPABASE_ANON_KEY` | optional | Anon key (falls back to it if no service key) |
+| `CLOUDINARY_CLOUD_NAME` | yes | Cloudinary account cloud name |
+| `CLOUDINARY_API_KEY` | yes | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | yes | Cloudinary API secret |
+| `JWT_SECRET` | yes | Signs admin tokens (Sprint 15) |
+| `JWT_EXPIRES_IN` | no | Default `1d` |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | no | JWT login credentials |
+| `ADMIN_PASSWORD_HASH` | optional | bcrypt hash; preferred over plaintext password |
+| `ADMIN_NAME` / `ADMIN_ROLE` | no | Token claims |
 | `PORT` | no | Default `3001` |
 | `HOST` | no | Default `0.0.0.0` |
 | `LOG_LEVEL` | no | `debug` \| `info` \| `warn` \| `error` (default `info`) |
 | `NODE_ENV` | no | `development` (default) or `production` |
 | `CORS_ORIGINS` | production only | Comma-separated allowed origins |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `SESSION_SECRET` | legacy admin | Keep for existing admin routes |
 
 The server **starts even without** Supabase/Cloudinary credentials (logs a
 warning, skips verification). Add them and restart to see them connect.
@@ -55,7 +67,7 @@ warning, skips verification). Add them and restart to see them connect.
 
 ```
 backend/
-├── server.js              # Entry — legacy routes + mounts the modular API
+├── server.js              # Entry — CORS, static site, cart, mounts /api
 ├── config/
 │   ├── env.js             # Raw environment loading (dotenv)
 │   └── index.js           # Centralized typed config object
@@ -67,52 +79,72 @@ backend/
 ├── cloudinary/
 │   └── client.js          # Reusable Cloudinary client (singleton)
 ├── controllers/
-│   └── health.controller.js
+│   ├── auth.controller.js
+│   ├── health.controller.js
+│   └── product.controller.js
+├── validators/
+│   └── product.validator.js   # Request-body validation
 ├── middleware/
+│   ├── auth.middleware.js # JWT verifyAdmin
 │   ├── errorHandler.js    # Centralized JSON error handler
 │   └── notFound.js        # JSON 404 for unmatched /api paths
 ├── repositories/
-│   └── health.repository.js   # Data-access layer (DB probes)
+│   ├── health.repository.js   # Connectivity probes
+│   └── product.repository.js  # Product + category data access
 ├── routes/
-│   ├── index.js           # Aggregator — register future route modules here
-│   └── health.routes.js
+│   ├── index.js           # Aggregator — mounts all route modules
+│   ├── health.routes.js
+│   ├── product.routes.js
+│   ├── auth.routes.js
+│   └── admin.routes.js    # JWT-protected admin endpoints
 ├── services/
+│   ├── auth.service.js        # JWT issue/verify + login
 │   ├── connection.service.js  # Verifies Supabase + Cloudinary at boot
-│   └── health.service.js      # Liveness payload
+│   ├── health.service.js      # Liveness payload
+│   └── product.service.js     # Product CRUD business logic
 └── utils/
+    ├── apiError.js        # Typed HTTP errors (400/404/409/500)
     ├── asyncHandler.js    # Async error forwarding for controllers
     └── logger.js          # Leveled console logger
 ```
-
-Request flow: `routes/` → `controllers/` → `services/` → `repositories/` →
-Supabase. Config is read only through `config/index.js`.
 
 ---
 
 ## API
 
+### Auth (JWT, admin)
+
+```http
+POST /api/auth/login      → { success, token, admin }   # public
+GET  /api/auth/me         → { success, admin }          # Bearer token
+```
+
+### Products
+
+| Endpoint | Auth | Description |
+| --- | --- | --- |
+| `GET /api/products` | public | Active products only (`is_active = true`) — customer catalog |
+| `GET /api/products/:id` | public | Single product (404 when hidden/unknown) |
+| `GET /api/admin/products` | JWT | **All** products, including hidden — admin |
+| `POST /api/products` | JWT | Create |
+| `PUT /api/products/:id` | JWT | Partial update |
+| `DELETE /api/products/:id` | JWT | Delete |
+
+Responses keep the shape the frontends expect:
+
+- `GET /api/products` → array of `{ id, name, description, category, price, oldPrice, imageUrl, stockQuantity, sale, is_active }`
+- `POST/PUT` → `{ ok, product }`
+- `DELETE` → `{ ok }`
+
+### Cart (in-memory, legacy customer-site sync)
+
+`GET /cart`, `POST /cart`, `PUT /cart/:id`, `DELETE /cart/:id`
+
 ### Health
 
 ```http
-GET /api/health
+GET /api/health → { "status": "ok" }
 ```
-
-```json
-{ "status": "ok" }
-```
-
-At boot the server also verifies external services and logs the result
-(e.g. `Supabase connected (categories: 3)`, `Cloudinary connected`). Failures
-are logged but never crash the process.
-
-### Legacy (unchanged)
-
-- `GET /api/products`, `GET /api/products/:id`
-- `POST/PUT/DELETE /api/products/:id` (admin)
-- `GET /cart`, `POST /cart`, `PUT /cart/:id`, `DELETE /cart/:id`
-- `GET /api/orders`, `PUT /api/orders/:id` (admin)
-- `GET /api/users`, `DELETE /api/users/:id` (admin)
-- `/admin` admin panel
 
 ---
 
@@ -121,19 +153,15 @@ are logged but never crash the process.
 Tables: `categories`, `products`, `users`, `addresses`, `wishlist`, `cart`,
 `cart_items`, `orders`, `order_items`.
 
-- **UUID PKs** (`gen_random_uuid()`) for user-scoped tables; identity PKs for catalog.
-- **Proper FKs** with sensible `ON DELETE` behavior (cascade for owned data,
-  `SET NULL` to preserve order/product history).
-- **Check constraints** for enums (status, payment_status, role) and
-  non-negative money/quantity.
-- **Indexes** on every FK and hot query column.
-- **`updated_at` triggers** via a shared `set_updated_at()` function.
-- **RLS enabled** — catalog is publicly readable; user-scoped tables are locked
-  until authentication lands (backend uses the service-role key, which bypasses RLS).
+- Identity PKs for the catalog (`categories`, `products`); UUID PKs for user-scoped tables.
+- Proper FKs with sensible `ON DELETE` behavior.
+- Check constraints for enums and non-negative money/quantity.
+- Indexes on every FK and hot query column.
+- `updated_at` triggers via a shared `set_updated_at()` function.
+- RLS enabled — catalog is publicly readable; the backend uses the
+  service-role key, which bypasses RLS.
 
 ### Applying the schema
-
-Supabase SQL Editor, or from the CLI:
 
 ```bash
 psql "$SUPABASE_DB_URL" -f database/migrations/001_initial_schema.sql
@@ -149,6 +177,7 @@ The migration is idempotent (`IF NOT EXISTS`) — safe to re-run.
 npm install
 npm run dev
 curl http://localhost:3001/api/health   # -> { "status": "ok" }
+curl http://localhost:3001/api/products # -> [ ...active products... ]
 ```
 
 Expected boot log (with credentials configured):

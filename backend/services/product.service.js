@@ -1,25 +1,31 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { findAllProducts, findProductById } from '../repositories/product.repository.js';
+import { ApiError } from '../utils/apiError.js';
 import { logger } from '../utils/logger.js';
+import {
+  findAllProducts,
+  findProductById,
+  insertProduct,
+  updateProductById,
+  deleteProductById,
+  findCategoryBySlug,
+  insertCategory,
+  deleteCategoryById,
+} from '../repositories/product.repository.js';
 
 /**
- * Product domain service — Sprint 13B.
+ * Product domain service — full CRUD backed exclusively by Supabase.
  *
- * Reads products from Supabase (via the product repository) and maps database
- * rows back into the exact public API shape the legacy db.json layer produced:
+ * Responsible for all product business logic: row → API mapping, slug
+ * generation/uniqueness, category resolution (name → FK), and translating
+ * repository results into typed ApiErrors (400/404/409/500). Controllers stay
+ * thin and never touch the database.
  *
+ * Public API shape (unchanged so both frontends keep working):
  *   { id, name, description, category, price, oldPrice, imageUrl,
- *     stockQuantity, sale }
- *
- * When Supabase is not configured the service degrades to the legacy db.json
- * snapshot so local development remains usable (same contract the Sprint 13A
- * foundation uses for health checks).
+ *     stockQuantity, sale, is_active }
  */
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const dbPath = path.resolve(__dirname, '..', 'db.json');
+
+const SLUG_MAX_LENGTH = 80;
+const SLUG_ATTEMPTS = 20;
 
 function safeString(v) { return String(v ?? '').trim(); }
 function safeNumber(v, fallback = 0) {
@@ -27,13 +33,13 @@ function safeNumber(v, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
-function loadDbJsonProducts() {
-  try {
-    const parsed = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
-    return Array.isArray(parsed?.products) ? parsed.products : [];
-  } catch {
-    return [];
-  }
+function slugify(value) {
+  const slug = safeString(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, SLUG_MAX_LENGTH);
+  return slug || 'product';
 }
 
 /**
@@ -57,37 +63,219 @@ function normalizeProduct(row) {
     imageUrl: safeString(row.image_url || row.image),
     stockQuantity: safeNumber(row.stock_quantity, 0),
     sale: Boolean(row.is_sale),
+    is_active: Boolean(row.is_active),
   };
 }
 
-function normalizeLegacy(p) {
-  return {
-    id: safeNumber(p?.id, 0),
-    name: safeString(p?.name),
-    description: safeString(p?.description),
-    category: safeString(p?.category),
-    price: safeNumber(p?.price, 0),
-    oldPrice: safeNumber(p?.oldPrice, 0),
-    imageUrl: safeString(p?.imageUrl || p?.image),
-    stockQuantity: safeNumber(p?.stockQuantity, 0),
-    sale: Boolean(p?.sale),
-  };
+/** Validate an id param before it reaches the database. */
+function parseId(id) {
+  const numericId = Number(id);
+  if (!Number.isFinite(numericId) || numericId <= 0) {
+    throw new ApiError(400, 'Invalid product id');
+  }
+  return numericId;
 }
 
+/** Build a consistent 500 for failed database operations. */
+function toDbError(action, result) {
+  logger.error(`[products] ${action} failed: ${result?.reason || 'unknown error'}`);
+  const err = new ApiError(500, `Unable to ${action}. Please try again.`);
+  err.detail = result?.reason;
+  return err;
+}
+
+/**
+ * Resolve a category name/slug to its id, creating the category row when it
+ * does not exist yet (mirrors the behaviour of the seed script).
+ *
+ * @returns {Promise<{ id: number, created: boolean }>}
+ */
+async function resolveCategoryId(categoryName) {
+  const slug = slugify(categoryName);
+  const existing = await findCategoryBySlug(slug);
+  if (!existing.ok) throw toDbError('resolve category', existing);
+  if (existing.data) return { id: existing.data.id, created: false };
+
+  const inserted = await insertCategory({
+    name: safeString(categoryName) || slug,
+    slug,
+  });
+
+  if (inserted.ok) return { id: inserted.data.id, created: true };
+
+  // Unique-violation race (another request created the row concurrently).
+  if (inserted.code === '23505') {
+    const again = await findCategoryBySlug(slug);
+    if (!again.ok) throw toDbError('resolve category', again);
+    if (again.data) return { id: again.data.id, created: false };
+  }
+
+  throw toDbError('create category', inserted);
+}
+
+/**
+ * Insert a product, retrying with a numeric suffix when the slug collides
+ * (unique constraint on products.slug). Mirrors the seed script's dedup.
+ */
+async function insertWithUniqueSlug(row, baseSlug) {
+  for (let attempt = 0; attempt < SLUG_ATTEMPTS; attempt += 1) {
+    const slug = attempt === 0 ? baseSlug : `${baseSlug}-${attempt + 1}`;
+    const result = await insertProduct({ ...row, slug });
+    if (result.ok) return result;
+    if (result.code !== '23505') return result;
+  }
+  return { ok: false, reason: 'could not generate a unique slug', code: '23505' };
+}
+
+/** Update a product, retrying the new slug on collision like the create path. */
+async function updateWithUniqueSlug(id, patch, baseSlug) {
+  for (let attempt = 0; attempt < SLUG_ATTEMPTS; attempt += 1) {
+    const slug = attempt === 0 ? baseSlug : `${baseSlug}-${attempt + 1}`;
+    const result = await updateProductById(id, { ...patch, slug });
+    if (result.ok) return result;
+    if (result.code !== '23505') return result;
+  }
+  return { ok: false, reason: 'could not generate a unique slug', code: '23505' };
+}
+
+// ============================================================================
+// Public API
+// ============================================================================
+
+/**
+ * GET /api/products — customer catalog: ACTIVE products only.
+ * Hidden products (is_active = false) are never exposed to customers.
+ */
 export async function listProducts() {
-  const result = await findAllProducts();
-  if (result.ok) return result.data.map(normalizeProduct);
-
-  // Graceful fallback for unconfigured local dev — identical response shape.
-  logger.warn(`Supabase product read failed (${result.reason}) — falling back to db.json`);
-  return loadDbJsonProducts().map(normalizeLegacy);
+  const result = await findAllProducts({ activeOnly: true });
+  if (!result.ok) throw toDbError('load products', result);
+  return (result.data || []).map(normalizeProduct);
 }
 
-export async function getProduct(id) {
-  const result = await findProductById(id);
-  if (result.ok) return result.data ? normalizeProduct(result.data) : null;
+/**
+ * GET /api/admin/products — ALL products (active + hidden). JWT-protected,
+ * intended for the admin product management interface.
+ */
+export async function listAllProducts() {
+  const result = await findAllProducts({ activeOnly: false });
+  if (!result.ok) throw toDbError('load products', result);
+  return (result.data || []).map(normalizeProduct);
+}
 
-  logger.warn(`Supabase product read failed (${result.reason}) — falling back to db.json`);
-  const legacy = loadDbJsonProducts().find((p) => safeNumber(p?.id, 0) === Number(id));
-  return legacy ? normalizeLegacy(legacy) : null;
+/**
+ * Load a raw product row regardless of active status.
+ * Internal — used for admin update/delete existence checks.
+ */
+async function loadProductRow(id) {
+  const numericId = parseId(id);
+  const result = await findProductById(numericId);
+  if (!result.ok) throw toDbError('load product', result);
+  return result.data || null;
+}
+
+/**
+ * GET /api/products/:id — single public product.
+ * Returns null when not found OR when the product is hidden, so customers
+ * can never reach an inactive product by id.
+ */
+export async function getProduct(id) {
+  const row = await loadProductRow(id);
+  if (!row || !row.is_active) return null;
+  return normalizeProduct(row);
+}
+
+/** POST /api/products — create a product (category + product write). */
+export async function createProduct(input) {
+  const category = await resolveCategoryId(input.category);
+
+  const row = {
+    category_id: category.id,
+    name: input.name,
+    description: input.description ?? null,
+    price: input.price,
+    old_price: input.oldPrice ?? null,
+    image_url: input.imageUrl,
+    stock_quantity: input.stockQuantity,
+    is_sale: input.sale ?? false,
+    is_active: input.isActive ?? true,
+  };
+
+  const result = await insertWithUniqueSlug(row, slugify(input.name));
+
+  if (!result.ok) {
+    // Rollback compensation: remove the category we just created so a failed
+    // product insert does not leave an orphan row behind.
+    if (category.created) {
+      const cleanup = await deleteCategoryById(category.id);
+      if (!cleanup.ok) {
+        logger.warn(`[products] rollback of category ${category.id} failed: ${cleanup.reason}`);
+      }
+    }
+    if (result.code === '23505') {
+      throw new ApiError(409, 'A product with this name already exists');
+    }
+    throw toDbError('create product', result);
+  }
+
+  return normalizeProduct(result.data);
+}
+
+/** PUT /api/products/:id — partial update. */
+export async function updateProduct(id, input) {
+  const numericId = parseId(id);
+
+  const existing = await loadProductRow(numericId);
+  if (!existing) throw new ApiError(404, 'Product not found');
+
+  const patch = {};
+
+  let createdCategory = null;
+  if (input.category !== undefined) {
+    const category = await resolveCategoryId(input.category);
+    patch.category_id = category.id;
+    if (category.created) createdCategory = category.id;
+  }
+  if (input.name !== undefined) patch.name = input.name;
+  if (input.description !== undefined) patch.description = input.description ?? null;
+  if (input.price !== undefined) patch.price = input.price;
+  if (input.oldPrice !== undefined) patch.old_price = input.oldPrice ?? null;
+  if (input.imageUrl !== undefined) patch.image_url = input.imageUrl;
+  if (input.stockQuantity !== undefined) patch.stock_quantity = input.stockQuantity;
+  if (input.sale !== undefined) patch.is_sale = input.sale;
+  if (input.isActive !== undefined) patch.is_active = input.isActive;
+
+  // When the name changes the slug must follow, staying unique.
+  const result = input.name !== undefined
+    ? await updateWithUniqueSlug(numericId, patch, slugify(input.name))
+    : await updateProductById(numericId, patch);
+
+  if (!result.ok) {
+    // Rollback compensation: remove a category we just created so a failed
+    // update does not leave an orphan row behind.
+    if (createdCategory) {
+      const cleanup = await deleteCategoryById(createdCategory);
+      if (!cleanup.ok) {
+        logger.warn(`[products] rollback of category ${createdCategory} failed: ${cleanup.reason}`);
+      }
+    }
+    if (result.code === '23505') {
+      throw new ApiError(409, 'A product with this name already exists');
+    }
+    throw toDbError('update product', result);
+  }
+
+  return normalizeProduct(result.data);
+}
+
+/** DELETE /api/products/:id — remove a product. */
+export async function deleteProduct(id) {
+  const numericId = parseId(id);
+
+  const existing = await loadProductRow(numericId);
+  if (!existing) throw new ApiError(404, 'Product not found');
+
+  const result = await deleteProductById(numericId);
+  if (!result.ok) throw toDbError('delete product', result);
+
+  return true;
 }

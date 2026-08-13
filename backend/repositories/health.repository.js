@@ -1,5 +1,4 @@
 import { getSupabase } from '../database/client.js';
-import { config } from '../config/index.js';
 
 /**
  * Infrastructure probes used to verify connectivity to Supabase.
@@ -16,9 +15,4 @@ export async function countCategories() {
 
   if (error) return { ok: false, reason: error.message };
   return { ok: true, count };
-}
-
-/** Exposed for diagnostics if needed. */
-export function supabaseConfigured() {
-  return config.supabase.configured;
 }

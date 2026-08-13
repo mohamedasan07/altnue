@@ -30,11 +30,24 @@ export function loadEnv() {
     CLOUDINARY_CLOUD_NAME: raw.CLOUDINARY_CLOUD_NAME || '',
     CLOUDINARY_API_KEY: raw.CLOUDINARY_API_KEY || '',
     CLOUDINARY_API_SECRET: raw.CLOUDINARY_API_SECRET || '',
+    // Folder inside the Cloudinary media library for admin uploads.
+    CLOUDINARY_UPLOAD_FOLDER: raw.CLOUDINARY_UPLOAD_FOLDER || 'products',
 
-    // Legacy admin (existing server.js behavior)
+    // CORS allow-list (server.js) + admin login credentials (auth.service.js).
     CORS_ORIGINS: raw.CORS_ORIGINS || '',
     ADMIN_EMAIL: raw.ADMIN_EMAIL || 'admin@unsorted.com',
     ADMIN_PASSWORD: raw.ADMIN_PASSWORD || 'admin123',
-    SESSION_SECRET: raw.SESSION_SECRET || 'dev-secret-change-me',
+
+    // Admin authentication (JWT, Sprint 15)
+    // No default for JWT_SECRET — the auth service fails loudly when missing
+    // so a misconfigured environment never silently issues unsigned tokens.
+    JWT_SECRET: raw.JWT_SECRET || '',
+    JWT_EXPIRES_IN: raw.JWT_EXPIRES_IN || '1d',
+    // Optional bcrypt hash of the admin password (recommended for production).
+    // When absent, login falls back to the legacy plaintext ADMIN_PASSWORD so
+    // existing local setups keep working.
+    ADMIN_PASSWORD_HASH: raw.ADMIN_PASSWORD_HASH || '',
+    ADMIN_NAME: raw.ADMIN_NAME || 'Administrator',
+    ADMIN_ROLE: raw.ADMIN_ROLE || 'admin',
   };
 }

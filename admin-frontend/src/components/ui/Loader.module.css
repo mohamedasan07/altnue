@@ -1,0 +1,55 @@
+.loader {
+  display: inline-block;
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-right-color: currentColor;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ----- Sizes ----- */
+
+.sm {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+}
+
+.md {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
+}
+
+.lg {
+  width: 44px;
+  height: 44px;
+  border-width: 4px;
+}
+
+/* ----- Colors ----- */
+
+.current {
+  color: currentColor;
+}
+
+.primary {
+  color: var(--color-primary);
+}
+
+.light {
+  color: var(--color-text-inverse);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    animation-duration: 1.4s;
+  }
+}

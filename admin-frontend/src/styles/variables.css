@@ -1,0 +1,142 @@
+/* ==========================================================
+   DESIGN TOKENS — single source of truth for the admin UI.
+   Every component consumes these tokens; never hardcode
+   colors, radii, shadows or spacing inside component files.
+   ========================================================== */
+
+:root {
+  /* ----- Brand ----- */
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-primary-active: #4338ca;
+  --color-primary-soft: rgba(99, 102, 241, 0.1);
+  --color-primary-contrast: #ffffff;
+
+  --color-secondary: #0ea5e9;
+  --color-secondary-hover: #0284c7;
+  --color-secondary-soft: rgba(14, 165, 233, 0.1);
+
+  /* ----- Surfaces / background ----- */
+  --color-background: #fafafa;
+  --color-background-subtle: #f4f4f5;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f8f8fa;
+  --color-surface-active: #f0f0f3;
+
+  /* ----- Card ----- */
+  --color-card: #ffffff;
+  --color-card-header: #fafafa;
+
+  /* ----- Text ----- */
+  --color-text: #18181b;
+  --color-text-secondary: #52525b;
+  --color-text-muted: #a1a1aa;
+  --color-text-inverse: #ffffff;
+  --color-text-on-primary: #ffffff;
+
+  /* ----- Borders ----- */
+  --color-border: #e4e4e7;
+  --color-border-strong: #d4d4d8;
+  --color-border-focus: #6366f1;
+
+  /* ----- Semantic ----- */
+  --color-success: #16a34a;
+  --color-success-soft: rgba(22, 163, 74, 0.12);
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-soft: rgba(220, 38, 38, 0.1);
+  --color-warning: #f59e0b;
+  --color-warning-soft: rgba(245, 158, 11, 0.12);
+  --color-info: #3b82f6;
+  --color-info-soft: rgba(59, 130, 246, 0.12);
+
+  /* ----- Dashboard accents (Sprint 17) ----- */
+  --color-purple: #8b5cf6;
+  --color-purple-soft: rgba(139, 92, 246, 0.12);
+  --color-orange: #f97316;
+  --color-orange-soft: rgba(249, 115, 22, 0.12);
+
+  /* ----- Glass surfaces (Sprint 17) ----- */
+  --color-glass: rgba(255, 255, 255, 0.72);
+  --color-glass-strong: rgba(255, 255, 255, 0.88);
+  --color-glass-border: rgba(255, 255, 255, 0.65);
+  --glass-blur: 16px;
+
+  /* ----- Radius ----- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* ----- Shadows ----- */
+  --shadow-xs: 0 1px 2px rgba(24, 24, 27, 0.05);
+  --shadow-sm: 0 1px 3px rgba(24, 24, 27, 0.06), 0 1px 2px rgba(24, 24, 27, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(24, 24, 27, 0.07), 0 2px 4px -2px rgba(24, 24, 27, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(24, 24, 27, 0.1), 0 4px 6px -4px rgba(24, 24, 27, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(24, 24, 27, 0.12), 0 8px 10px -6px rgba(24, 24, 27, 0.06);
+  --shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  --shadow-modal: 0 24px 48px -12px rgba(24, 24, 27, 0.25);
+
+  /* ----- Spacing (4px base scale) ----- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ----- Layout ----- */
+  --sidebar-width: 264px;
+  --sidebar-width-collapsed: 76px;
+  --topbar-height: 64px;
+  --content-max-width: 1440px;
+
+  /* ----- Typography ----- */
+  --font-sans: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", "Fira Code", "Cascadia Code", Menlo,
+    Consolas, monospace;
+
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.8125rem;  /* 13px */
+  --font-size-base: 0.875rem; /* 14px */
+  --font-size-md: 1rem;       /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.375rem;   /* 22px */
+  --font-size-2xl: 1.75rem;   /* 28px */
+  --font-size-3xl: 2.25rem;   /* 36px */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.4;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.02em;
+
+  /* ----- Transitions ----- */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ----- Z-index scale ----- */
+  --z-dropdown: 30;
+  --z-sticky: 40;
+  --z-overlay: 60;
+  --z-modal: 70;
+  --z-toast: 90;
+}

@@ -31,22 +31,25 @@ export const config = {
     cloudName: env.CLOUDINARY_CLOUD_NAME,
     apiKey: env.CLOUDINARY_API_KEY,
     apiSecret: env.CLOUDINARY_API_SECRET,
+    uploadFolder: env.CLOUDINARY_UPLOAD_FOLDER,
     get configured() {
       return Boolean(env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET);
     },
   },
 
-  cors: {
-    origins: env.CORS_ORIGINS,
-  },
-
-  // Legacy admin section (kept for the existing server.js admin routes).
-  admin: {
-    email: env.ADMIN_EMAIL,
-    password: env.ADMIN_PASSWORD,
-  },
-
-  session: {
-    secret: env.SESSION_SECRET,
+  // Admin authentication — JWT (Sprint 15).
+  auth: {
+    jwtSecret: env.JWT_SECRET,
+    jwtExpiresIn: env.JWT_EXPIRES_IN,
+    admin: {
+      id: 1,
+      email: env.ADMIN_EMAIL,
+      // Optional bcrypt hash; login verifies with bcrypt when present.
+      passwordHash: env.ADMIN_PASSWORD_HASH,
+      // Plaintext fallback (legacy default) used only when no hash is set.
+      password: env.ADMIN_PASSWORD,
+      name: env.ADMIN_NAME,
+      role: env.ADMIN_ROLE,
+    },
   },
 };

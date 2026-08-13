@@ -1,0 +1,71 @@
+import { NavLink } from 'react-router-dom'
+import {
+  FiGrid,
+  FiPackage,
+  FiShoppingBag,
+  FiUsers,
+  FiBarChart2,
+  FiSettings,
+  FiLogOut,
+} from 'react-icons/fi'
+import classNames from '../../utils/classNames'
+import Logo from '../common/Logo'
+import { useAuth } from '../../hooks/useAuth'
+import styles from './Sidebar.module.css'
+
+const NAV_ITEMS = [
+  { label: 'Dashboard', to: '/dashboard', icon: FiGrid, end: true },
+  { label: 'Products', to: '/products', icon: FiPackage },
+  { label: 'Orders', to: '/orders', icon: FiShoppingBag },
+  { label: 'Customers', to: '/customers', icon: FiUsers },
+  { label: 'Analytics', to: '/analytics', icon: FiBarChart2 },
+  { label: 'Settings', to: '/settings', icon: FiSettings },
+]
+
+function Sidebar({ open = false, onClose }) {
+  const { logout } = useAuth()
+
+  return (
+    <aside
+      className={classNames(styles.sidebar, open && styles.isOpen)}
+      aria-hidden={!open}
+    >
+      <div className={styles.header}>
+        <Logo />
+      </div>
+
+      <nav className={styles.nav} aria-label="Primary">
+        <ul className={styles.navList}>
+          {NAV_ITEMS.map(({ label, to, icon: Icon, end }) => (
+            <li key={to}>
+              <NavLink
+                to={to}
+                end={end}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  classNames(styles.navItem, isActive && styles.isActive)
+                }
+              >
+                <Icon size={18} className={styles.navIcon} />
+                <span>{label}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div className={styles.footer}>
+        <button
+          type="button"
+          className={styles.navItem}
+          onClick={logout}
+        >
+          <FiLogOut size={18} className={styles.navIcon} />
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+  )
+}
+
+export default Sidebar

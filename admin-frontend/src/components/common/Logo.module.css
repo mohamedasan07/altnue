@@ -1,0 +1,51 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text);
+}
+
+.light {
+  color: var(--color-text-inverse);
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: var(--color-text-on-primary);
+  box-shadow: var(--shadow-md);
+  flex-shrink: 0;
+}
+
+.mark svg {
+  width: 18px;
+  height: 18px;
+}
+
+.wordmark {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+/* ----- Sizes ----- */
+
+.lg .mark {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-lg);
+}
+
+.lg .mark svg {
+  width: 24px;
+  height: 24px;
+}
+
+.lg .wordmark {
+  font-size: var(--font-size-xl);
+}
