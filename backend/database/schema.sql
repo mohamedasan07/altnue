@@ -78,6 +78,10 @@ create table if not exists public.users (
   role          text not null default 'customer' check (role in ('customer', 'admin')),
   is_active     boolean not null default true,
   last_login_at timestamptz,
+  -- Password reset (Sprint 21.1) — reset_token stores a SHA-256 hash of the
+  -- one-time reset code, never the code itself.
+  reset_token         text,
+  reset_token_expires_at timestamptz,
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );
@@ -196,6 +200,9 @@ create index if not exists idx_orders_payment_status on public.orders (payment_s
 create index if not exists idx_orders_placed_at      on public.orders (placed_at desc);
 create index if not exists idx_order_items_order     on public.order_items (order_id);
 create index if not exists idx_order_items_product   on public.order_items (product_id);
+-- One reset token can only ever belong to one user (NULLs stay out of the index).
+create index if not exists idx_users_reset_token on public.users (reset_token)
+  where reset_token is not null;
 
 -- ============================================================================
 -- Triggers (keep updated_at fresh)
@@ -236,3 +243,17 @@ create policy "categories_public_read" on public.categories
   for select using (is_active = true);
 create policy "products_public_read" on public.products
   for select using (is_active = true);
+
+-- Customer authentication (Sprint 21.1): defense-in-depth for the anon key —
+-- a logged-in customer may read/update only their own account. The backend
+-- writes through the service-role key, which bypasses RLS.
+drop policy if exists "users_select_own" on public.users;
+create policy "users_select_own" on public.users
+  for select
+  using (auth.uid() = id);
+
+drop policy if exists "users_update_own" on public.users;
+create policy "users_update_own" on public.users
+  for update
+  using (auth.uid() = id)
+  with check (auth.uid() = id);

@@ -17,6 +17,11 @@ export const config = {
     logLevel: env.LOG_LEVEL,
   },
 
+  // Customer-facing origin used to build password-reset links.
+  frontend: {
+    url: env.FRONTEND_URL,
+  },
+
   supabase: {
     url: env.SUPABASE_URL,
     anonKey: env.SUPABASE_ANON_KEY,
@@ -41,6 +46,8 @@ export const config = {
   auth: {
     jwtSecret: env.JWT_SECRET,
     jwtExpiresIn: env.JWT_EXPIRES_IN,
+    // Customer tokens (Sprint 21.1) — default 7d, overridable via env.
+    customerJwtExpiresIn: env.JWT_EXPIRES_IN_CUSTOMER,
     admin: {
       id: 1,
       email: env.ADMIN_EMAIL,

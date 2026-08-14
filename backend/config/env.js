@@ -19,6 +19,9 @@ export function loadEnv() {
     HOST: raw.HOST || '0.0.0.0',
     LOG_LEVEL: raw.LOG_LEVEL || 'info',
 
+    // Customer-facing frontend origin (password-reset links, dev reset URL).
+    FRONTEND_URL: raw.FRONTEND_URL || 'http://localhost:5173',
+
     // Supabase (PostgreSQL)
     SUPABASE_URL: raw.SUPABASE_URL || '',
     SUPABASE_ANON_KEY: raw.SUPABASE_ANON_KEY || '',
@@ -43,6 +46,9 @@ export function loadEnv() {
     // so a misconfigured environment never silently issues unsigned tokens.
     JWT_SECRET: raw.JWT_SECRET || '',
     JWT_EXPIRES_IN: raw.JWT_EXPIRES_IN || '1d',
+    // Customer tokens use a longer default lifetime (Sprint 21.1). Admin
+    // tokens keep JWT_EXPIRES_IN above.
+    JWT_EXPIRES_IN_CUSTOMER: raw.JWT_EXPIRES_IN_CUSTOMER || '7d',
     // Optional bcrypt hash of the admin password (recommended for production).
     // When absent, login falls back to the legacy plaintext ADMIN_PASSWORD so
     // existing local setups keep working.
