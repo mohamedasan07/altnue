@@ -20,6 +20,8 @@ const PASSWORD_MIN = 8;
 const PASSWORD_MAX_BYTES = 72;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Loose, international-friendly phone: optional +/(), digits, spaces/dashes.
+const PHONE_RE = /^[+()\d][\s\d()-]{6,16}$/;
 
 function isPresent(value) {
   return value !== undefined && value !== null && String(value).trim() !== '';
@@ -189,4 +191,79 @@ export function validateResetConfirmPayload(body = {}) {
   }
 
   return { token, password };
+}
+
+/**
+ * Validate a profile-update payload (Sprint 21.2). Every field is optional so
+ * partial updates are allowed, but each provided field is normalized and
+ * validated. Email and role are immutable and rejected explicitly.
+ *
+ * @param {object} body  request body
+ * @returns {object} normalized DB-ready patch { first_name?, last_name?, phone?, avatar_url? }
+ * @throws {ApiError} 400 when validation fails
+ */
+export function validateProfilePayload(body = {}) {
+  const errors = [];
+  const data = {};
+
+  // --- firstName (optional) ---
+  if (body.firstName !== undefined) {
+    const firstName = String(body.firstName).trim();
+    if (!firstName) {
+      errors.push('firstName is required');
+    } else if (firstName.length < 2) {
+      errors.push('firstName must be at least 2 characters');
+    } else if (firstName.length > NAME_MAX) {
+      errors.push(`firstName must be ${NAME_MAX} characters or fewer`);
+    } else {
+      data.first_name = firstName;
+    }
+  }
+
+  // --- lastName (optional) ---
+  if (body.lastName !== undefined) {
+    const lastName = String(body.lastName).trim();
+    if (!lastName) {
+      errors.push('lastName is required');
+    } else if (lastName.length < 2) {
+      errors.push('lastName must be at least 2 characters');
+    } else if (lastName.length > NAME_MAX) {
+      errors.push(`lastName must be ${NAME_MAX} characters or fewer`);
+    } else {
+      data.last_name = lastName;
+    }
+  }
+
+  // --- phone (optional, nullable) ---
+  if (body.phone !== undefined) {
+    const phone = String(body.phone).trim();
+    if (phone.length === 0) {
+      data.phone = null;
+    } else if (phone.length > PHONE_MAX) {
+      errors.push(`phone must be ${PHONE_MAX} characters or fewer`);
+    } else if (!PHONE_RE.test(phone)) {
+      errors.push('phone must be a valid phone number');
+    } else {
+      data.phone = phone;
+    }
+  }
+
+  // --- avatarUrl (optional, nullable) ---
+  if (body.avatarUrl !== undefined) {
+    data.avatar_url = String(body.avatarUrl ?? '').trim() || null;
+  }
+
+  // --- immutable identity ---
+  if (body.email !== undefined) {
+    errors.push('email cannot be changed');
+  }
+  if (body.role !== undefined) {
+    errors.push('role cannot be changed');
+  }
+
+  if (errors.length > 0) {
+    throw new ApiError(400, errors.join('; '));
+  }
+
+  return data;
 }

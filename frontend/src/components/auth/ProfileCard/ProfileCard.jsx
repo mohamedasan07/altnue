@@ -21,11 +21,12 @@ export default function ProfileCard() {
   const { user, updateProfile, logout } = useAuth();
   const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [draft, setDraft] = useState({
     firstName: user?.firstName ?? '',
     lastName: user?.lastName ?? '',
     phone: user?.phone ?? '',
-    address: user?.address ?? '',
   });
 
   const startEdit = () => {
@@ -33,19 +34,26 @@ export default function ProfileCard() {
       firstName: user?.firstName ?? '',
       lastName: user?.lastName ?? '',
       phone: user?.phone ?? '',
-      address: user?.address ?? '',
     });
+    setSaveError('');
     setEditing(true);
   };
 
-  const saveEdit = () => {
-    updateProfile({
-      firstName: draft.firstName.trim(),
-      lastName: draft.lastName.trim(),
-      phone: draft.phone.trim(),
-      address: draft.address.trim(),
-    });
-    setEditing(false);
+  const saveEdit = async () => {
+    setSaving(true);
+    setSaveError('');
+    try {
+      await updateProfile({
+        firstName: draft.firstName.trim(),
+        lastName: draft.lastName.trim(),
+        phone: draft.phone.trim() || null,
+      });
+      setEditing(false);
+    } catch (err) {
+      setSaveError(err.message || 'Unable to save your profile. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleLogout = () => {
@@ -87,10 +95,6 @@ export default function ProfileCard() {
               <dt>Phone</dt>
               <dd>{user?.phone || 'Not added'}</dd>
             </div>
-            <div className={styles.item}>
-              <dt>Saved address</dt>
-              <dd>{user?.address || 'No saved address yet.'}</dd>
-            </div>
           </motion.dl>
         ) : (
           <motion.div
@@ -124,20 +128,18 @@ export default function ProfileCard() {
               value={draft.phone}
               onChange={(e) => setDraft((d) => ({ ...d, phone: e.target.value }))}
             />
-            <AuthField
-              id="profile-address"
-              label="Saved Address"
-              type="text"
-              value={draft.address}
-              placeholder="Street, city, pin code"
-              onChange={(e) => setDraft((d) => ({ ...d, address: e.target.value }))}
-            />
+
+            {saveError && (
+              <p className={styles.saveError} role="alert">
+                {saveError}
+              </p>
+            )}
 
             <div className={styles.editActions}>
-              <button type="button" className={styles.save} onClick={saveEdit}>
-                Save Changes
+              <button type="button" className={styles.save} onClick={saveEdit} disabled={saving}>
+                {saving ? 'Saving…' : 'Save Changes'}
               </button>
-              <button type="button" className={styles.cancel} onClick={() => setEditing(false)}>
+              <button type="button" className={styles.cancel} onClick={() => setEditing(false)} disabled={saving}>
                 Cancel
               </button>
             </div>

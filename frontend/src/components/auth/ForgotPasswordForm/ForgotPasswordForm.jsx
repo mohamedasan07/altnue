@@ -1,20 +1,24 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { validateForgot } from '../../../utils/authValidation';
-import { loadUsers, findUserByEmail } from '../../../services/authStorage';
+import { validateForgot, normalizeEmail } from '../../../utils/authValidation';
+import { requestPasswordReset } from '../../../services/customerAuth';
 import AuthField from '../AuthField/AuthField';
 import styles from './ForgotPasswordForm.module.css';
 
 /**
- * Forgot password — collects the email and shows a mock success state.
- * Link that would send a reset email is simulated in the UI only.
+ * Forgot password — sends the backend a reset request. The server responds
+ * identically for known and unknown emails (anti-enumeration); in development
+ * it returns a devResetUrl that is surfaced so the flow is testable without a
+ * mailer.
  */
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [resetUrl, setResetUrl] = useState('');
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -23,12 +27,16 @@ export default function ForgotPasswordForm() {
     if (fieldErrors.email) return;
 
     setSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setSubmitting(false);
-
-    // Mock check for friendlier messaging, but always allow the "email sent" state.
-    const known = findUserByEmail(loadUsers(), email);
-    setSent(known ? 'reset' : 'unknown');
+    setFormError('');
+    try {
+      const data = await requestPasswordReset(normalizeEmail(email));
+      setResetUrl(data?.devResetUrl || '');
+      setSent(true);
+    } catch (err) {
+      setFormError(err.message || 'Unable to send the reset link. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const onBack = () => {
@@ -39,6 +47,12 @@ export default function ForgotPasswordForm() {
 
   return (
     <AnimatePresence mode="wait" initial={false}>
+      {formError && (
+        <p className={styles.formError} role="alert">
+          {formError}
+        </p>
+      )}
+
       {!sent ? (
         <motion.form
           key="forgot-form"
@@ -94,19 +108,17 @@ export default function ForgotPasswordForm() {
             ✓
           </span>
           <h2 className={styles.successTitle}>Check your inbox.</h2>
-          {sent === 'unknown' && (
-            <p className={styles.successNote}>
-              We didn&apos;t find an account for {email}, but no problem — no reset
-              link was sent. Use the link below to create one.
+          <p className={styles.successNote}>
+            If an account exists for <strong>{email}</strong>, a reset link is
+            on its way.
+          </p>
+          {resetUrl && (
+            <p className={styles.resetLink}>
+              Dev link (no mail server configured):{' '}
+              <a href={resetUrl}>{resetUrl}</a>
             </p>
           )}
-          {sent === 'reset' && (
-            <p className={styles.successNote}>
-              If an account exists for <strong>{email}</strong>, a reset link is on
-              its way.
-            </p>
-          )}
-          <button type="button" className={styles.again} onClick={onReset}>
+          <button type="button" className={styles.again} onClick={onBack}>
             Use a different email
           </button>
           <Link to="/login" className={styles.back}>

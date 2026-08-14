@@ -3,6 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from './useCart';
 import { calcSubtotal, ESTIMATED_TAX_RATE, shippingFor } from '../utils/cartConfig';
 import { saveOrder } from '../services/orderStorage';
+import {
+  CountriesList,
+  validateAddress,
+  validateCity,
+  validateCountry,
+  validateName,
+  validatePhone,
+  validatePincode,
+  validateState,
+} from '../utils/addressValidation';
+
+export { CountriesList };
 
 export const CHECKOUT_STEPS = [
   { id: 1, label: 'Shipping' },
@@ -31,12 +43,7 @@ const COUPONS = {
   UNFILTERED15: { percent: 0.15, label: '15% off — UNFILTERED15' },
 };
 
-export const CountriesList = ['India', 'United States', 'United Kingdom', 'United Arab Emirates', 'Australia'];
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const PHONE_RE = /^[6-9]\d{9}$/;
-const PIN_RE = /^\d{6}$/;
-const PIN_INTL_RE = /^\d{4,12}$/;
 
 const REQUIRED_FIELDS = [
   'firstName',
@@ -51,36 +58,21 @@ const REQUIRED_FIELDS = [
 ];
 
 const validators = {
-  firstName: (v) => (v.trim().length >= 2 ? null : 'Please enter your first name'),
-  lastName: (v) => (v.trim().length >= 2 ? null : 'Please enter your last name'),
+  firstName: (v) => validateName(v, 'First name'),
+  lastName: (v) => validateName(v, 'Last name'),
   email: (v) =>
     v.trim().length === 0
       ? 'Email is required'
       : EMAIL_RE.test(v.trim())
         ? null
         : 'Enter a valid email address',
-  phone: (v) =>
-    v.trim().length === 0
-      ? 'Phone number is required'
-      : PHONE_RE.test(v.trim())
-        ? null
-        : 'Enter a valid 10-digit phone number',
-  address: (v) => (v.trim().length >= 8 ? null : 'Enter your full street address'),
+  phone: (v) => validatePhone(v),
+  address: (v) => validateAddress(v),
   apartment: () => null,
-  city: (v) => (v.trim().length >= 2 ? null : 'Enter your city'),
-  state: (v) => (v.trim().length >= 2 ? null : 'Enter your state'),
-  pincode: (v, allValues) => {
-    if (v.trim().length === 0) return 'Pincode is required';
-    const isIndia = allValues.country === 'India';
-    return isIndia
-      ? PIN_RE.test(v.trim())
-        ? null
-        : 'Enter a valid 6-digit pincode'
-      : PIN_INTL_RE.test(v.trim())
-        ? null
-        : 'Enter a valid postcode';
-  },
-  country: (v) => (v.trim().length > 0 ? null : 'Select a country'),
+  city: (v) => validateCity(v),
+  state: (v) => validateState(v),
+  pincode: (v, allValues) => validatePincode(v, allValues?.country),
+  country: (v) => validateCountry(v),
 };
 
 const INITIAL_VALUES = {

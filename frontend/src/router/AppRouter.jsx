@@ -17,6 +17,7 @@ const OrderSuccessPage = lazy(() => import('../pages/OrderSuccessPage/OrderSucce
 const LoginPage = lazy(() => import('../pages/LoginPage/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage/ResetPasswordPage'));
 const DashboardPage = lazy(() => import('../pages/DashboardPage/DashboardPage'));
 const OrdersPage = lazy(() => import('../pages/OrdersPage/OrdersPage'));
 const AddressesPage = lazy(() => import('../pages/AddressesPage/AddressesPage'));
@@ -52,6 +53,7 @@ export default function AppRouter() {
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<RegisterPage />} />
             <Route path="forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="reset-password" element={<ResetPasswordPage />} />
           </Route>
 
           {/* Authenticated account dashboard — replaces the storefront chrome */}

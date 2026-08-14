@@ -73,6 +73,15 @@
   color: var(--color-accent);
 }
 
+.banner {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-ghost);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+}
+
 @media (min-width: 640px) {
   .card {
     padding: var(--space-10);

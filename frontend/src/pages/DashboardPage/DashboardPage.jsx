@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../hooks/useAuth';
 import { useWishlist } from '../../hooks/useWishlist';
+import { useAddresses } from '../../hooks/useAddresses';
 import { loadOrders } from '../../services/orderStorage';
-import { loadAddresses } from '../../services/addressStorage';
 import DashboardCard from '../../components/dashboard/DashboardCard/DashboardCard';
 import OrderCard from '../../components/dashboard/OrderCard/OrderCard';
 import OrderModal from '../../components/dashboard/OrderModal/OrderModal';
@@ -36,9 +36,9 @@ const memberSince = (iso) => {
 export default function DashboardPage() {
   const { user } = useAuth();
   const { items: wishlist, count: wishlistCount } = useWishlist();
+  const { addresses } = useAddresses();
 
   const [orders] = useState(() => loadOrders());
-  const [addresses] = useState(() => loadAddresses());
   const [selected, setSelected] = useState(null);
 
   const recentOrders = orders.slice(0, 3);

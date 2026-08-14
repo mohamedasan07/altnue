@@ -100,6 +100,29 @@ export async function findUserById(id) {
 }
 
 /**
+ * Update a user's profile fields (Sprint 21.2). Whitelisted columns only —
+ * identity fields the customer may edit: first_name, last_name, phone,
+ * avatar_url. Email and role are never writable here.
+ * @param {string} id
+ * @param {object} patch  partial DB row (snake_case keys)
+ * @returns {Promise<{ok: boolean, data?: object|null, reason?: string, code?: string}>}
+ */
+export async function updateUserProfile(id, patch) {
+  const supabase = getSupabase();
+  if (!supabase) return { ok: false, reason: 'not-configured' };
+
+  const { data, error } = await supabase
+    .from('users')
+    .update(patch)
+    .eq('id', id)
+    .select(USER_SAFE_COLUMNS)
+    .maybeSingle();
+
+  if (error) return { ok: false, reason: error.message, code: error.code };
+  return { ok: true, data };
+}
+
+/**
  * Record a successful sign-in (updates last_login_at).
  * @param {string} id
  * @returns {Promise<{ok: boolean, reason?: string, code?: string}>}

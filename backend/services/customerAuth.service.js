@@ -47,7 +47,7 @@ function toDbError(action, result) {
 }
 
 /** Map a users row to the public customer profile shape (no credentials). */
-function normalizeCustomer(row) {
+export function normalizeCustomer(row) {
   return {
     id: row.id,
     email: row.email,
@@ -57,11 +57,13 @@ function normalizeCustomer(row) {
     avatarUrl: row.avatar_url ?? null,
     role: row.role,
     isActive: row.is_active,
+    createdAt: row.created_at ?? null,
+    lastLoginAt: row.last_login_at ?? null,
   };
 }
 
 /** Sign a customer JWT with a longer lifetime than the admin token. */
-function signCustomerToken(customer) {
+export function signCustomerToken(customer) {
   return jwt.sign(
     {
       id: customer.id,

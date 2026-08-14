@@ -16,6 +16,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const from = location.state?.from || '/account';
+  const resetDone = Boolean(location.state?.resetDone);
 
   useEffect(() => {
     if (isAuthenticated) navigate(from, { replace: true });
@@ -41,6 +42,13 @@ export default function LoginPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
+        {resetDone && (
+          <p className={styles.banner} role="status">
+            Your password has been updated. Please sign in with your new
+            password.
+          </p>
+        )}
+
         <LoginForm onSuccess={() => navigate(from, { replace: true })} />
 
         <div className={styles.divider} role="separator">

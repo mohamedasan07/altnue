@@ -1,53 +1,45 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { loadAddresses, saveAddresses } from '../../services/addressStorage';
+import { useAddresses } from '../../hooks/useAddresses';
 import AddressCard from '../../components/dashboard/AddressCard/AddressCard';
 import AddressModal from '../../components/dashboard/AddressModal/AddressModal';
 import styles from './AddressesPage.module.css';
 
 /**
- * Addresses page — CRUD over the mock localStorage address book.
+ * Addresses page — CRUD against the Sprint 21.2 address-book API
+ * (exactly-one-default is enforced server-side and mirrored in the hook).
  */
 export default function AddressesPage() {
-  const [addresses, setAddresses] = useState(loadAddresses);
+  const {
+    addresses,
+    status,
+    error,
+    addAddress,
+    updateAddressById,
+    removeAddress,
+    setDefaultAddress,
+  } = useAddresses();
   const [modal, setModal] = useState({ open: false, editing: null });
 
-  const persist = (next) => {
-    setAddresses(next);
-    saveAddresses(next);
-  };
-
-  const addNew = () => {
-    setModal({ open: true, editing: null });
-  };
-
-  const save = (values) => {
-    const id = values.id ?? `addr_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-    const withDefault = values.isDefault
-      ? addresses.map((a) => ({ ...a, isDefault: false }))
-      : addresses;
-
-    const exists = withDefault.some((a) => a.id === id);
-    const next = exists
-      ? withDefault.map((a) => (a.id === id ? { ...values, id, isDefault: values.isDefault || addresses.length === 1 } : a))
-      : [...addresses, { ...values, id }];
-
-    // Always keep exactly one default.
-    if (!next.some((a) => a.isDefault) && next.length > 0) next[0].isDefault = true;
-    persist(next);
-  };
-
-  const remove = (address) => {
-    let next = addresses.filter((a) => a.id !== address.id);
-    if (!next.some((a) => a.isDefault) && next.length > 0) next[0].isDefault = true;
-    persist(next);
-  };
-
-  const setDefault = (address) => {
-    persist(addresses.map((a) => ({ ...a, isDefault: a.id === address.id })));
-  };
-
+  const addNew = () => setModal({ open: true, editing: null });
   const openEdit = (address) => setModal({ open: true, editing: address });
+  const closeModal = () => setModal({ open: false, editing: null });
+
+  const save = async (values) => {
+    if (values.id) {
+      await updateAddressById(values.id, values);
+    } else {
+      await addAddress(values);
+    }
+  };
+
+  const remove = async (address) => {
+    await removeAddress(address.id);
+  };
+
+  const setDefault = async (address) => {
+    await setDefaultAddress(address.id);
+  };
 
   return (
     <div className={styles.page}>
@@ -57,13 +49,23 @@ export default function AddressesPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       >
-        <p className={styles.hint}>{addresses.length} saved address{addresses.length === 1 ? '' : 'es'}</p>
+        <p className={styles.hint}>
+          {addresses.length} saved address{addresses.length === 1 ? '' : 'es'}
+        </p>
         <button type="button" className={styles.add} onClick={addNew}>
           + Add New Address
         </button>
       </motion.div>
 
-      {addresses.length > 0 ? (
+      {error && (
+        <p className={styles.error} role="alert">
+          {error}
+        </p>
+      )}
+
+      {status === 'loading' ? (
+        <p className={styles.hint}>Loading your addresses…</p>
+      ) : addresses.length > 0 ? (
         <ul className={styles.grid}>
           {addresses.map((address) => (
             <li key={address.id} className={styles.cell}>
@@ -94,7 +96,7 @@ export default function AddressesPage() {
       <AddressModal
         open={modal.open}
         initial={modal.editing}
-        onClose={() => setModal({ open: false, editing: null })}
+        onClose={closeModal}
         onSave={save}
       />
     </div>

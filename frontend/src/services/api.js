@@ -1,4 +1,9 @@
 // API client — single fetch wrapper + asset URL resolution.
+// Attaches the customer JWT (when present) and centralizes 401 → logout so
+// every future customer-scoped consumer (cart, orders, wishlist, payments)
+// inherits the same session handling.
+
+import { clearAuthStorage, getStoredToken } from './authStorage';
 
 const REMOTE_BASE = 'https://unsorted-backend.onrender.com';
 
@@ -13,17 +18,45 @@ const isDev =
 // In production, fall back to the deployed backend URL.
 export const API_BASE = isDev ? '' : REMOTE_BASE;
 
+/** Event dispatched on any 401 so AuthContext can clear the session. */
+export const UNAUTHORIZED_EVENT = 'unsorted:unauthorized';
+
 export async function request(path, options = {}) {
+  const token = getStoredToken();
+
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  };
+
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    },
     ...options,
+    headers,
   });
 
   if (!res.ok) {
-    throw new Error(`Request failed (${res.status})`);
+    if (res.status === 401) {
+      clearAuthStorage();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
+      }
+    }
+
+    let message = `Request failed (${res.status})`;
+    let detail = null;
+    try {
+      const body = await res.json();
+      if (body?.error) message = body.error;
+      if (body?.detail) detail = body.detail;
+    } catch {
+      /* non-JSON error body — keep the generic message */
+    }
+
+    const err = new Error(message);
+    err.status = res.status;
+    if (detail) err.detail = detail;
+    throw err;
   }
 
   return res.json();

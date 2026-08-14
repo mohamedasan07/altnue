@@ -3,6 +3,16 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useFocusTrap } from '../../../hooks/useFocusTrap';
 import AuthField from '../../auth/AuthField/AuthField';
+import {
+  CountriesList,
+  validateAddress,
+  validateCity,
+  validateCountry,
+  validateName,
+  validatePhone,
+  validatePincode,
+  validateState,
+} from '../../../utils/addressValidation';
 import styles from './AddressModal.module.css';
 
 const EASE_OUT = [0.22, 1, 0.36, 1];
@@ -14,42 +24,31 @@ const EMPTY = {
   city: '',
   state: '',
   pincode: '',
+  country: 'India',
   isDefault: false,
 };
 
-const PIN_RE = /^\d{6}$/;
-
-function validate(values) {
+function validateAddressValues(values) {
   const errors = {};
+  const set = (field, msg) => {
+    if (msg) errors[field] = msg;
+  };
 
-  if (!values.name.trim()) errors.name = 'Full name is required.';
-  if (!values.phone.trim()) {
-    errors.phone = 'Phone number is required.';
-  } else if (!/^[+()\d][\s\d()-]{6,16}$/.test(values.phone.trim())) {
-    errors.phone = 'Enter a valid phone number.';
-  }
-
-  if (!values.address.trim()) {
-    errors.address = 'Street address is required.';
-  } else if (values.address.trim().length < 8) {
-    errors.address = 'Enter your full street address.';
-  }
-
-  if (!values.city.trim()) errors.city = 'City is required.';
-  if (!values.state.trim()) errors.state = 'State is required.';
-
-  if (!values.pincode.trim()) {
-    errors.pincode = 'Pincode is required.';
-  } else if (!PIN_RE.test(values.pincode.trim())) {
-    errors.pincode = 'Enter a valid 6-digit pincode.';
-  }
+  set('name', validateName(values.name));
+  set('phone', validatePhone(values.phone, { international: true }));
+  set('address', validateAddress(values.address));
+  set('city', validateCity(values.city));
+  set('state', validateState(values.state));
+  set('country', validateCountry(values.country));
+  set('pincode', validatePincode(values.pincode, values.country));
 
   return errors;
 }
 
 /**
  * Accessible add/edit address modal — focus-trapped, ESC/backdrop to close,
- * inline validation, saves through the parent so storage stays centralized.
+ * inline validation (shared with checkout), country selector. Saves through
+ * the parent so storage stays centralized.
  */
 export default function AddressModal({ open, onClose, initial = null, onSave }) {
   const panelRef = useFocusTrap(open);
@@ -89,13 +88,13 @@ export default function AddressModal({ open, onClose, initial = null, onSave }) 
 
   const handleBlur = (field) => () => {
     setTouched((prev) => ({ ...prev, [field]: true }));
-    const errs = validate(values);
+    const errs = validateAddressValues(values);
     setErrors((prev) => ({ ...prev, [field]: errs[field] || '' }));
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
-    const errs = validate(values);
+    const errs = validateAddressValues(values);
     setErrors(errs);
     if (Object.values(errs).some(Boolean)) return;
     onSave?.({
@@ -186,6 +185,34 @@ export default function AddressModal({ open, onClose, initial = null, onSave }) 
                 autoComplete="street-address"
                 required
               />
+
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="addr-country">
+                  Country
+                  <span className={styles.required} aria-hidden="true">*</span>
+                </label>
+                <select
+                  id="addr-country"
+                  name="country"
+                  value={values.country}
+                  onChange={setField('country')}
+                  onBlur={handleBlur('country')}
+                  className={styles.select}
+                  aria-required="true"
+                  aria-invalid={touched.country && errors.country ? true : undefined}
+                >
+                  {CountriesList.map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
+                  ))}
+                </select>
+                {touched.country && errors.country ? (
+                  <p id="addr-country-error" className={styles.error} role="alert">
+                    {errors.country}
+                  </p>
+                ) : null}
+              </div>
 
               <div className={styles.grid}>
                 <AuthField

@@ -52,6 +52,17 @@
   color: var(--color-success);
 }
 
+.error {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+}
+
+.primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .switchList {
   display: grid;
 }

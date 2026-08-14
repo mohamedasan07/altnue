@@ -257,3 +257,32 @@ create policy "users_update_own" on public.users
   for update
   using (auth.uid() = id)
   with check (auth.uid() = id);
+
+-- Address book (Sprint 21.2): a customer may read/insert/update/delete only
+-- their own addresses. The backend writes through the service-role key, which
+-- bypasses RLS — these policies are defense-in-depth for the anon key.
+drop policy if exists "addresses_select_own" on public.addresses;
+create policy "addresses_select_own" on public.addresses
+  for select
+  using (auth.uid() = user_id);
+
+drop policy if exists "addresses_insert_own" on public.addresses;
+create policy "addresses_insert_own" on public.addresses
+  for insert
+  with check (auth.uid() = user_id);
+
+drop policy if exists "addresses_update_own" on public.addresses;
+create policy "addresses_update_own" on public.addresses
+  for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop policy if exists "addresses_delete_own" on public.addresses;
+create policy "addresses_delete_own" on public.addresses
+  for delete
+  using (auth.uid() = user_id);
+
+-- Exactly one default address per user (hard integrity under concurrency).
+create unique index if not exists idx_addresses_one_default
+  on public.addresses (user_id)
+  where is_default = true;

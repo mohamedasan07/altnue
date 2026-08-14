@@ -1,101 +1,95 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import * as authApi from '../services/customerAuth';
 import {
-  findUserByEmail,
-  loadSession,
-  loadUsers,
-  publicUser,
-  saveSession,
-  saveUsers,
-  clearSession,
+  getStoredToken,
+  getStoredUser,
+  setAuthStorage,
+  clearAuthStorage,
 } from '../services/authStorage';
+import { UNAUTHORIZED_EVENT } from '../services/api';
 import { normalizeEmail } from '../utils/authValidation';
 
 const AuthContext = createContext(null);
 
-// Fake latency so buttons show a believable loading state in the UI.
-const delay = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const makeError = (field, message) => {
-  const err = new Error(message);
-  err.field = field;
-  return err;
-};
-
-/** Build a fresh session object for a persisted user. */
-function sessionFor(user, remember) {
-  return { userId: user.id, email: user.email, loggedInAt: Date.now(), remember: Boolean(remember) };
-}
-
+/**
+ * Customer authentication (Sprint 21.1 backend, wired here in 21.2).
+ *
+ * The public API is intentionally identical to the previous localStorage mock
+ * so every consumer (LoginForm, RegisterForm, ForgotPasswordForm,
+ * ProtectedRoute, ProfileDropdown, ProfileCard, SettingsPanel) works without
+ * change:
+ *   { user, isAuthenticated, login, register, logout, updateProfile }
+ *
+ * Sessions persist as a JWT + profile in localStorage. A 401 from any API call
+ * clears the stored session centrally (services/api.js) and fires
+ * UNAUTHORIZED_EVENT, which this provider listens for to drop the in-memory
+ * user.
+ */
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const session = loadSession();
-    if (!session) return null;
-    const users = loadUsers();
-    const account = findUserByEmail(users, session.email ?? session.userId);
-    return account ? publicUser(account) : null;
-  });
+  const [user, setUser] = useState(() => getStoredUser());
 
-  const login = useCallback(async ({ email, password, remember = true } = {}) => {
-    await delay();
-    const normalized = normalizeEmail(email);
-    const users = loadUsers();
-    const account = findUserByEmail(users, normalized);
+  // Centralized 401 → logout: any customer API call that returns 401 clears
+  // the stored session and signs the user out in every open tab.
+  useEffect(() => {
+    const onUnauthorized = () => setUser(null);
+    window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+  }, []);
 
-    if (!account) {
-      throw makeError('email', 'No account found with this email.');
+  // Session restore — refresh the cached profile from the backend so profile
+  // edits made elsewhere are picked up after a refresh.
+  useEffect(() => {
+    let cancelled = false;
+    async function refreshSession() {
+      if (!getStoredToken()) return;
+      try {
+        const fresh = await authApi.fetchCurrentCustomer();
+        if (cancelled) return;
+        setAuthStorage(getStoredToken(), fresh);
+        setUser(fresh);
+      } catch {
+        // 401 is handled centrally; network errors keep the cached profile.
+      }
     }
-    if (account.password !== password) {
-      throw makeError('password', 'Incorrect password.');
-    }
+    refreshSession();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-    const session = sessionFor(account, remember);
-    if (remember) saveSession(session);
-    setUser(publicUser(account));
-    return publicUser(account);
+  const login = useCallback(async ({ email, password } = {}) => {
+    const { token, user: account } = await authApi.loginCustomer({
+      email: normalizeEmail(email),
+      password,
+    });
+    setAuthStorage(token, account);
+    setUser(account);
+    return account;
   }, []);
 
   const register = useCallback(async (details = {}) => {
-    await delay(650);
-    const users = loadUsers();
-    const normalized = normalizeEmail(details.email);
-
-    if (findUserByEmail(users, normalized)) {
-      throw makeError('email', 'An account with this email already exists.');
-    }
-
-    const account = {
-      id: `usr_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`,
-      firstName: (details.firstName || '').trim(),
-      lastName: (details.lastName || '').trim(),
-      email: normalized,
-      phone: (details.phone || '').trim(),
+    const { token, user: account } = await authApi.registerCustomer({
+      firstName: details.firstName,
+      lastName: details.lastName,
+      email: normalizeEmail(details.email),
+      phone: details.phone,
       password: details.password,
-      address: details.address ?? '',
-      createdAt: new Date().toISOString(),
-    };
-
-    saveUsers([...users, account]);
-    saveSession(sessionFor(account, true));
-    setUser(publicUser(account));
-    return publicUser(account);
+    });
+    setAuthStorage(token, account);
+    setUser(account);
+    return account;
   }, []);
 
   const logout = useCallback(() => {
-    clearSession();
+    clearAuthStorage();
     setUser(null);
   }, []);
 
-  const updateProfile = useCallback((patch = {}) => {
-    setUser((current) => {
-      if (!current) return current;
-      const merged = { ...current, ...patch };
-      const users = loadUsers();
-      const nextUsers = users.map((u) => (u.id === current.id ? { ...u, ...merged } : u));
-      saveUsers(nextUsers);
-      const session = loadSession();
-      if (session) saveSession(sessionFor({ ...merged, id: current.id }, session.remember));
-      return merged;
-    });
+  const updateProfile = useCallback(async (patch = {}) => {
+    const { token, user: account } = await authApi.updateCustomerProfile(patch);
+    setAuthStorage(token, account);
+    setUser(account);
+    return account;
   }, []);
 
   const value = useMemo(

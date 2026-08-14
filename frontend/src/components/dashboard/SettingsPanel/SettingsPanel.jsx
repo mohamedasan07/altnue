@@ -20,6 +20,8 @@ export default function SettingsPanel() {
     phone: user?.phone ?? '',
   });
   const [profileSaved, setProfileSaved] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileError, setProfileError] = useState('');
 
   // Notification + privacy prefs, hydrated once from storage.
   const [prefs, setPrefs] = useState(() => loadSettings());
@@ -38,14 +40,22 @@ export default function SettingsPanel() {
     saveSettings(next);
   };
 
-  const saveProfile = () => {
-    updateProfile({
-      firstName: profile.firstName.trim(),
-      lastName: profile.lastName.trim(),
-      phone: profile.phone.trim(),
-    });
-    setProfileSaved(true);
-    window.setTimeout(() => setProfileSaved(false), 2200);
+  const saveProfile = async () => {
+    setProfileSaving(true);
+    setProfileError('');
+    try {
+      await updateProfile({
+        firstName: profile.firstName.trim(),
+        lastName: profile.lastName.trim(),
+        phone: profile.phone.trim() || null,
+      });
+      setProfileSaved(true);
+      window.setTimeout(() => setProfileSaved(false), 2200);
+    } catch (err) {
+      setProfileError(err.message || 'Unable to save your profile. Please try again.');
+    } finally {
+      setProfileSaving(false);
+    }
   };
 
   return (
@@ -83,12 +93,17 @@ export default function SettingsPanel() {
           />
         </div>
         <div className={styles.personalActions}>
-          <button type="button" className={styles.primary} onClick={saveProfile}>
-            Save Changes
+          <button type="button" className={styles.primary} onClick={saveProfile} disabled={profileSaving}>
+            {profileSaving ? 'Saving…' : 'Save Changes'}
           </button>
           {profileSaved && (
             <span className={styles.saved} role="status">
               Saved ✓
+            </span>
+          )}
+          {profileError && (
+            <span className={styles.error} role="alert">
+              {profileError}
             </span>
           )}
         </div>

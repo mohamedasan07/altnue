@@ -104,6 +104,21 @@
   margin-top: var(--space-2);
 }
 
+.saveError {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+}
+
+.save:disabled,
+.cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

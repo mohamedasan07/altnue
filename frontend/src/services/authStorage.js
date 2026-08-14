@@ -1,82 +1,46 @@
-// UNSORTED — mock auth persistence layer.
-// Users and active sessions live in localStorage so login survives refreshes.
-// Being a frontend-only mock, the stored password is plain text — never do
-// this in production.
+// UNSORTED — customer auth persistence.
+// Stores the customer JWT + profile in localStorage so sessions survive
+// refreshes. The token is read by services/api.js to attach the Bearer header
+// on every API request; a 401 there clears storage centrally.
 
-const USERS_KEY = 'unsorted_auth_users_v1';
-const SESSION_KEY = 'unsorted_auth_session_v1';
+const TOKEN_KEY = 'unsorted_customer_token';
+const USER_KEY = 'unsorted_customer_user';
 
-function publicUser(user) {
-  if (!user) return null;
-  const { password, ...rest } = user;
-  return rest;
-}
-
-/** Read the registered-user registry. Never throws — returns [] on any fault. */
-export function loadUsers() {
+/** Read the stored customer JWT. Never throws — null on any fault. */
+export function getStoredToken() {
   try {
-    const raw = localStorage.getItem(USERS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((u) => u && typeof u === 'object' && typeof u.email === 'string' && typeof u.password === 'string');
-  } catch {
-    return [];
-  }
-}
-
-/** Persist the user registry. Swallows storage failures. */
-export function saveUsers(users) {
-  try {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  } catch {
-    /* storage unavailable — auth runs in memory only */
-  }
-}
-
-export function clearStoredUsers() {
-  try {
-    localStorage.removeItem(USERS_KEY);
-  } catch {
-    /* noop */
-  }
-}
-
-/** Find a registered account by email (case-insensitive). */
-export function findUserByEmail(users, email) {
-  const needle = String(email || '').trim().toLowerCase();
-  return users.find((u) => String(u.email).trim().toLowerCase() === needle) ?? null;
-}
-
-/** Read the persisted session (remembered logins). Never throws — null on fault. */
-export function loadSession() {
-  try {
-    const raw = localStorage.getItem(SESSION_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object' || typeof parsed.userId !== 'string') return null;
-    return parsed;
+    return localStorage.getItem(TOKEN_KEY) || null;
   } catch {
     return null;
   }
 }
 
-/** Persist the current session (remember-me logins only). */
-export function saveSession(session) {
+/** Read the cached customer profile. Never throws — null on any fault. */
+export function getStoredUser() {
   try {
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
   } catch {
-    /* storage unavailable */
+    return null;
   }
 }
 
-/** Remove the persisted session. */
-export function clearSession() {
+/** Persist the token + profile (swallows storage failures). */
+export function setAuthStorage(token, user) {
   try {
-    localStorage.removeItem(SESSION_KEY);
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
+  } catch {
+    /* storage unavailable — session runs in memory only */
+  }
+}
+
+/** Remove the token + profile. */
+export function clearAuthStorage() {
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
   } catch {
     /* noop */
   }
 }
-
-export { publicUser };
