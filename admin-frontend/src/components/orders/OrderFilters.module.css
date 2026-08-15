@@ -1,0 +1,50 @@
+.filters {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.select {
+  min-height: 44px;
+  min-width: 170px;
+  padding: var(--space-2) var(--space-3);
+  padding-right: var(--space-8);
+  font-size: var(--font-size-base);
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-glass);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.select:hover {
+  border-color: var(--color-text-muted);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: var(--shadow-focus);
+}

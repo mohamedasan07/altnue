@@ -54,7 +54,7 @@ const ORDER_ITEMS_COLUMNS = `
 `;
 
 /** Orders joined with their items (used by list/detail). */
-const ORDER_WITH_ITEMS = `
+export const ORDER_WITH_ITEMS = `
   ${ORDER_COLUMNS.replace(/\s+/g, ' ').trim()},
   items:order_items (
     id,

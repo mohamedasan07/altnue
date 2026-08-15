@@ -90,7 +90,7 @@ async function compensatePlacement(orderId, decremented) {
 }
 
 /** Map a joined order row (+ items) to the public order shape. */
-function normalizeOrder(row) {
+export function normalizeOrder(row) {
   if (!row) return null;
   const address = row.shipping_address || {};
   const contact = row.contact || {};
