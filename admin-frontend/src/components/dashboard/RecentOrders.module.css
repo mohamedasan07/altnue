@@ -90,3 +90,13 @@
   background: var(--color-danger-soft);
   color: var(--color-danger);
 }
+
+.secondary {
+  background: var(--color-secondary-soft);
+  color: var(--color-secondary);
+}
+
+.purple {
+  background: var(--color-purple-soft);
+  color: var(--color-purple);
+}

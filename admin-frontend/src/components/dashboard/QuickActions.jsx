@@ -1,8 +1,44 @@
 import { Link } from 'react-router-dom'
-import { FiArrowUpRight } from 'react-icons/fi'
-import { quickActions } from '../../data/dashboard'
+import { FiArrowUpRight, FiPlus, FiShoppingBag, FiUsers, FiBarChart2 } from 'react-icons/fi'
 import classNames from '../../utils/classNames'
 import styles from './QuickActions.module.css'
+
+// Static navigation configuration — not business data. Moved out of
+// data/dashboard.js (Sprint 22.2 Phase 2) so the mock file could be deleted.
+const quickActions = [
+  {
+    id: 'add-product',
+    label: 'Add Product',
+    description: 'Create a new listing',
+    to: '/products',
+    icon: FiPlus,
+    accent: 'primary',
+  },
+  {
+    id: 'orders',
+    label: 'View Orders',
+    description: 'Manage fulfilment',
+    to: '/orders',
+    icon: FiShoppingBag,
+    accent: 'blue',
+  },
+  {
+    id: 'customers',
+    label: 'Customers',
+    description: 'Browse your audience',
+    to: '/customers',
+    icon: FiUsers,
+    accent: 'purple',
+  },
+  {
+    id: 'analytics',
+    label: 'Analytics',
+    description: 'Explore insights',
+    to: '/analytics',
+    icon: FiBarChart2,
+    accent: 'orange',
+  },
+]
 
 function QuickActions() {
   return (

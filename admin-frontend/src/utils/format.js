@@ -41,6 +41,21 @@ export function formatCount(count) {
   return `${value} ${value === 1 ? 'item' : 'items'}`
 }
 
+/** "2 min ago" / "3 hrs ago" — or "—" when the value is missing/invalid. */
+export function timeAgo(value) {
+  const date = toDate(value)
+  if (!date) return '—'
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+  if (seconds < 45) return 'just now'
+  const minutes = Math.round(seconds / 60)
+  if (minutes < 60) return `${minutes} min ago`
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return `${hours} hr${hours === 1 ? '' : 's'} ago`
+  const days = Math.round(hours / 24)
+  if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`
+  return formatDate(value)
+}
+
 function toDate(value) {
   if (!value) return null
   const date = new Date(value)

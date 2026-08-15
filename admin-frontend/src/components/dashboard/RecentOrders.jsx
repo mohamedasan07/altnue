@@ -1,15 +1,9 @@
-import { recentOrders } from '../../data/dashboard'
+import { formatMoney, formatDate } from '../../utils/format'
+import { getOrderStatusMeta } from '../../utils/orderStatus'
 import classNames from '../../utils/classNames'
 import styles from './RecentOrders.module.css'
 
-const STATUS_ACCENTS = {
-  Pending: 'warning',
-  Processing: 'info',
-  Delivered: 'success',
-  Cancelled: 'danger',
-}
-
-function RecentOrders() {
+function RecentOrders({ orders = [] }) {
   return (
     <div className={styles.tableWrap}>
       <table className={styles.table}>
@@ -23,24 +17,31 @@ function RecentOrders() {
           </tr>
         </thead>
         <tbody>
-          {recentOrders.map((order) => (
-            <tr key={order.id}>
-              <td className={styles.orderId}>{order.id}</td>
-              <td className={styles.customer}>{order.customer}</td>
-              <td className={styles.amount}>{order.amount}</td>
-              <td>
-                <span
-                  className={classNames(
-                    styles.badge,
-                    styles[STATUS_ACCENTS[order.status] || 'info'],
-                  )}
-                >
-                  {order.status}
-                </span>
-              </td>
-              <td className={styles.date}>{order.date}</td>
-            </tr>
-          ))}
+          {orders.map((order) => {
+            const statusMeta = getOrderStatusMeta(order.status)
+            return (
+              <tr key={order.id}>
+                <td className={styles.orderId}>{order.orderNumber}</td>
+                <td className={styles.customer}>
+                  {order.shipping?.name || order.contact?.name || '—'}
+                </td>
+                <td className={styles.amount}>
+                  {formatMoney(order.totals?.grandTotal)}
+                </td>
+                <td>
+                  <span
+                    className={classNames(
+                      styles.badge,
+                      styles[statusMeta.accent] || styles.info,
+                    )}
+                  >
+                    {statusMeta.label}
+                  </span>
+                </td>
+                <td className={styles.date}>{formatDate(order.placedAt)}</td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>

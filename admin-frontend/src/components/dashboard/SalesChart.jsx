@@ -8,7 +8,6 @@ import {
   CartesianGrid,
   Tooltip,
 } from 'recharts'
-import { salesOverview } from '../../data/dashboard'
 import styles from './SalesChart.module.css'
 
 const inr = new Intl.NumberFormat('en-IN', {
@@ -35,7 +34,7 @@ function ChartTooltip({ active, payload, label }) {
   )
 }
 
-function SalesChart() {
+function SalesChart({ data = [] }) {
   const theme = useMemo(
     () => ({
       primary: resolveToken('--color-primary'),
@@ -51,7 +50,7 @@ function SalesChart() {
     <div className={styles.chart}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
-          data={salesOverview}
+          data={data}
           margin={{ top: 8, right: 8, left: 8, bottom: 0 }}
         >
           <defs>

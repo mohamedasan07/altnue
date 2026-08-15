@@ -1,15 +1,14 @@
 import { FiAlertTriangle } from 'react-icons/fi'
-import { lowStockProducts } from '../../data/dashboard'
 import styles from './LowStockList.module.css'
 
-function LowStockList() {
+function LowStockList({ products = [] }) {
   return (
     <ul className={styles.list}>
-      {lowStockProducts.map((product) => (
+      {products.map((product) => (
         <li key={product.id} className={styles.item}>
           <img
             className={styles.image}
-            src={product.image}
+            src={product.imageUrl}
             alt={product.name}
             loading="lazy"
           />
