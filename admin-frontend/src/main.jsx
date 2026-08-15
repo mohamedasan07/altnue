@@ -11,11 +11,13 @@ import ToastProvider from './components/toast/ToastProvider.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
+      {/* ToastProvider sits above AuthProvider so session-expiry handling can
+          surface its message as a toast. */}
+      <ToastProvider>
+        <AuthProvider>
           <App />
-        </ToastProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </ToastProvider>
     </BrowserRouter>
   </StrictMode>,
 )

@@ -14,7 +14,7 @@ const FEATURES = [
 ]
 
 function LoginPage() {
-  const { isAuthenticated, login } = useAuth()
+  const { isAuthenticated, login, sessionMessage } = useAuth()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
@@ -104,6 +104,12 @@ function LoginPage() {
             {error && (
               <div className={styles.formError} role="alert">
                 {error}
+              </div>
+            )}
+
+            {sessionMessage && (
+              <div className={styles.formError} role="alert">
+                {sessionMessage}
               </div>
             )}
 

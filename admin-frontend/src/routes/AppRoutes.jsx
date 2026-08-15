@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import AdminLayout from '../layouts/AdminLayout'
 import ProtectedRoute from '../components/ProtectedRoute'
+import SessionLoading from '../components/SessionLoading'
 import LoginPage from '../pages/Login/LoginPage'
 import DashboardPage from '../pages/Dashboard/DashboardPage'
 import ProductsPage from '../pages/Products/ProductsPage'
@@ -8,12 +9,23 @@ import OrdersPage from '../pages/Orders/OrdersPage'
 import CustomersPage from '../pages/Customers/CustomersPage'
 import AnalyticsPage from '../pages/Analytics/AnalyticsPage'
 import SettingsPage from '../pages/Settings/SettingsPage'
+import { useAuth } from '../hooks/useAuth'
+import { AUTH_STATUS } from '../context/authContext'
 
 function NotFoundPage() {
   return <h1>Page not found</h1>
 }
 
 function AppRoutes() {
+  const { status } = useAuth()
+
+  // While a stored JWT is being validated against the backend, render NOTHING
+  // but a loader — the login page and the protected shell both stay hidden
+  // until we know the session is real.
+  if (status === AUTH_STATUS.VALIDATING) {
+    return <SessionLoading />
+  }
+
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
