@@ -7,6 +7,8 @@ import uploadRoutes from './upload.routes.js';
 import customerAuthRoutes from './customerAuth.routes.js';
 import userRoutes from './user.routes.js';
 import addressRoutes from './address.routes.js';
+import cartRoutes from './cart.routes.js';
+import orderRoutes from './order.routes.js';
 
 /**
  * Aggregates all modular API routers. New route modules register here without
@@ -22,5 +24,7 @@ apiRouter.use('/upload', uploadRoutes);
 apiRouter.use('/customer/auth', customerAuthRoutes);
 apiRouter.use('/customer', userRoutes);
 apiRouter.use('/customer/addresses', addressRoutes);
+apiRouter.use('/customer/cart', cartRoutes);
+apiRouter.use('/customer/orders', orderRoutes);
 
 export default apiRouter;

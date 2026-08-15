@@ -1,5 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { Navigate } from 'react-router-dom';
 import useCheckout, { etaDate } from '../../hooks/useCheckout';
+import { useAuth } from '../../hooks/useAuth';
 import { formatINR } from '../../utils/format';
 import Button from '../../components/ui/Button/Button';
 import CheckoutProgress from '../../components/checkout/CheckoutProgress/CheckoutProgress';
@@ -33,6 +35,7 @@ const InfoRow = ({ label, value }) => (
 );
 
 export default function CheckoutPage() {
+  const { isAuthenticated } = useAuth();
   const checkout = useCheckout();
   const {
     items,
@@ -70,6 +73,7 @@ export default function CheckoutPage() {
     setOpenReview,
     placeOrder,
     placing,
+    placeError,
   } = checkout;
 
   if (items.length === 0) {
@@ -89,6 +93,13 @@ export default function CheckoutPage() {
         </div>
       </section>
     );
+  }
+
+  // Orders are customer-scoped on the backend — a guest with a full bag is
+  // sent to sign in first, then bounced back to this exact page with the cart
+  // intact (CartContext merges the guest cart into the account on login).
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: '/checkout' }} />;
   }
 
   const deliveryOption = deliveryOptions.find((option) => option.id === delivery);
@@ -249,6 +260,7 @@ export default function CheckoutPage() {
         onPlace={placeOrder}
         data={reviewData}
         placing={placing}
+        error={placeError}
       />
     </section>
   );

@@ -150,7 +150,7 @@ export default function OrderModal({ order, open, onClose }) {
 
                 <section className={styles.block} aria-label="Payment method">
                   <h3 className={styles.blockTitle}>Payment</h3>
-                  <p className={styles.payment}>{paymentLabel(order.payment)}</p>
+                  <p className={styles.payment}>{paymentLabel(order.paymentMethod)}</p>
                   {order.delivery?.label && (
                     <>
                       <h3 className={styles.blockTitle}>Delivery</h3>

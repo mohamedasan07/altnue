@@ -2,7 +2,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from './useCart';
 import { calcSubtotal, ESTIMATED_TAX_RATE, shippingFor } from '../utils/cartConfig';
-import { saveOrder } from '../services/orderStorage';
+import { placeOrder as placeOrderApi } from '../services/orders';
 import {
   CountriesList,
   validateAddress,
@@ -90,6 +90,14 @@ const INITIAL_VALUES = {
 
 const round = (n) => Math.round(n);
 
+/** Fresh idempotency key for double-submit protection (matches the backend regex). */
+function newIdempotencyKey() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `idem-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
 /** Human "Arrives by …" date, n business-flavored days out. */
 export function etaDate(from, days) {
   const date = new Date(from);
@@ -155,6 +163,7 @@ export default function useCheckout() {
   const [step, setStep] = useState(1);
   const [openReview, setOpenReview] = useState(false);
   const [placing, setPlacing] = useState(false);
+  const [placeError, setPlaceError] = useState(null);
 
   const valuesRef = useRef(values);
   valuesRef.current = values;
@@ -225,16 +234,15 @@ export default function useCheckout() {
 
   const prevStep = useCallback(() => setStep((s) => Math.max(1, s - 1)), []);
 
-  const placeOrder = useCallback(() => {
+  const placeOrder = useCallback(async () => {
     if (placing) return;
     const latest = valuesRef.current;
-    const deliveryOption = DELIVERY_OPTIONS.find((o) => o.id === delivery);
-    const orderNumber = `US-${new Date().getFullYear()}${String(Date.now()).slice(-6)}`;
-    const order = {
-      orderNumber,
-      placedAt: new Date().toISOString(),
-      items,
-      totals,
+
+    // The backend recomputes every total server-side from database prices;
+    // the client never sends money values. Only shipping/contact, the delivery
+    // option, the payment method, the coupon code, notes and an idempotency key
+    // leave the browser.
+    const payload = {
       shipping: {
         name: `${latest.firstName.trim()} ${latest.lastName.trim()}`,
         phone: latest.phone,
@@ -246,17 +254,24 @@ export default function useCheckout() {
         pincode: latest.pincode,
         country: latest.country,
       },
-      delivery: { id: deliveryOption.id, label: deliveryOption.label, note: deliveryOption.note },
-      etaDate: etaDate(Date.now(), deliveryOption.etaDays),
+      delivery,
       payment,
-      coupon: coupon ? { code: coupon.code, percent: coupon.percent } : null,
+      coupon: coupon ? coupon.code : null,
       notes,
+      idempotencyKey: newIdempotencyKey(),
     };
+
     setPlacing(true);
-    saveOrder(order);
-    clearCart();
-    navigate('/checkout/success', { replace: true });
-  }, [placing, items, delivery, payment, coupon, notes, clearCart, navigate]);
+    setPlaceError(null);
+    try {
+      const { order } = await placeOrderApi(payload);
+      clearCart();
+      navigate('/checkout/success', { replace: true, state: { order } });
+    } catch (err) {
+      setPlacing(false);
+      setPlaceError(err?.message || 'Unable to place your order. Please try again.');
+    }
+  }, [placing, delivery, payment, coupon, notes, clearCart, navigate]);
 
   return {
     items,
@@ -296,6 +311,7 @@ export default function useCheckout() {
     setOpenReview,
     placeOrder,
     placing,
+    placeError,
   };
 }
 

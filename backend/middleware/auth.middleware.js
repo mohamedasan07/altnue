@@ -90,3 +90,22 @@ export function authorize(...roles) {
 export function verifyAdmin(req, res, next) {
   return authorize('admin')(req, res, next);
 }
+
+/**
+ * Optional authentication for endpoints that serve BOTH guests and
+ * authenticated customers (e.g. the cart API, Sprint 21.3).
+ *
+ * When a valid Bearer token is present it attaches req.user / req.admin
+ * exactly like authorize() — so authenticated requests act on the customer's
+ * own cart. When the header is absent OR the token is invalid it calls next()
+ * anyway, leaving req.user undefined so the handler falls back to the guest
+ * session path. Never rejects.
+ */
+export function optionalAuth(req, _res, next) {
+  try {
+    authenticate(req);
+  } catch {
+    /* no/invalid token — continue as guest */
+  }
+  return next();
+}

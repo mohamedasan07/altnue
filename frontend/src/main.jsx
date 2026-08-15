@@ -12,13 +12,13 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider>
       <WishlistProvider>
-        <CartProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <CartProvider>
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <App />
             </BrowserRouter>
-          </AuthProvider>
-        </CartProvider>
+          </CartProvider>
+        </AuthProvider>
       </WishlistProvider>
     </ThemeProvider>
   </StrictMode>

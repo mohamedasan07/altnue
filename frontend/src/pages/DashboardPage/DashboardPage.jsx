@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../../hooks/useAuth';
 import { useWishlist } from '../../hooks/useWishlist';
 import { useAddresses } from '../../hooks/useAddresses';
-import { loadOrders } from '../../services/orderStorage';
+import { useOrders } from '../../hooks/useOrders';
 import DashboardCard from '../../components/dashboard/DashboardCard/DashboardCard';
 import OrderCard from '../../components/dashboard/OrderCard/OrderCard';
 import OrderModal from '../../components/dashboard/OrderModal/OrderModal';
@@ -31,15 +31,28 @@ const memberSince = (iso) => {
 
 /**
  * Account dashboard — welcome, stats, quick actions, recent orders and a
- * wishlist preview. Reads the same mock storage as the other account pages.
+ * wishlist preview. Orders come from the customer order API; profile stats
+ * come from the address/auth APIs.
  */
 export default function DashboardPage() {
   const { user } = useAuth();
   const { items: wishlist, count: wishlistCount } = useWishlist();
   const { addresses } = useAddresses();
+  const { orders, getOrder } = useOrders();
 
-  const [orders] = useState(() => loadOrders());
   const [selected, setSelected] = useState(null);
+  const [detail, setDetail] = useState(null);
+
+  const handleView = async (order) => {
+    setSelected(order);
+    setDetail(order);
+    try {
+      const fresh = await getOrder(order.id);
+      setDetail(fresh);
+    } catch {
+      /* keep the list copy — the modal still renders */
+    }
+  };
 
   const recentOrders = orders.slice(0, 3);
   const firstWishlist = wishlist.slice(0, 4);
@@ -85,7 +98,7 @@ export default function DashboardPage() {
           ) : (
             <div className={styles.list}>
               {recentOrders.map((order) => (
-                <OrderCard key={order.orderNumber} order={order} onView={setSelected} />
+                <OrderCard key={order.orderNumber} order={order} onView={handleView} />
               ))}
             </div>
           )}
@@ -122,7 +135,11 @@ export default function DashboardPage() {
         </DashboardCard>
       </section>
 
-      <OrderModal order={selected} open={Boolean(selected)} onClose={() => setSelected(null)} />
+      <OrderModal
+        order={detail ?? selected}
+        open={Boolean(selected)}
+        onClose={() => setSelected(null)}
+      />
     </div>
   );
 }

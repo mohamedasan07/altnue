@@ -5,6 +5,8 @@ export const ORDER_STATUSES = {
   delivered: { label: 'Delivered', className: styles.delivered },
   shipped: { label: 'Shipped', className: styles.shipped },
   processing: { label: 'Processing', className: styles.processing },
+  confirmed: { label: 'Confirmed', className: styles.processing },
+  pending: { label: 'Pending', className: styles.processing },
   cancelled: { label: 'Cancelled', className: styles.cancelled },
 };
 

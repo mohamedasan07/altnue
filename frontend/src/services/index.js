@@ -2,8 +2,18 @@
 
 export { API_BASE, request, resolveUrl, UNAUTHORIZED_EVENT } from './api';
 export { fetchProduct, fetchProducts } from './products';
-export { clearStoredCart, loadCartItems, saveCartItems } from './cartStorage';
+export {
+  addCartItem,
+  clearGuestSessionId,
+  ensureGuestSessionId,
+  fetchCart,
+  getStoredGuestSessionId,
+  mergeCart,
+  removeCartItem,
+  updateCartItem,
+} from './cart';
 export { clearStoredWishlist, loadWishlist, saveWishlist } from './wishlistStorage';
+export { fetchOrder, fetchOrders, placeOrder } from './orders';
 export {
   confirmPasswordReset,
   fetchCurrentCustomer,

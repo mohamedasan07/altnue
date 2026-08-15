@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { loadOrder } from '../../services/orderStorage';
-import { PAYMENT_METHODS } from '../../hooks/useCheckout';
+import { Navigate, useLocation } from 'react-router-dom';
+import { etaDate, PAYMENT_METHODS } from '../../hooks/useCheckout';
 import { formatINR } from '../../utils/format';
 import Button from '../../components/ui/Button/Button';
 import styles from './OrderSuccessPage.module.css';
@@ -16,20 +14,29 @@ const Info = ({ label, value }) => (
   </div>
 );
 
+const addressLines = (ship) => {
+  const lines = [ship.line1, ship.line2].filter(Boolean);
+  lines.push([ship.city, ship.state].filter(Boolean).join(', '));
+  lines.push([ship.pincode, ship.country].filter(Boolean).join(' · '));
+  return lines.filter(Boolean).join(', ');
+};
+
 /**
- * Post-purchase confirmation. Reads the just-placed order from storage —
- * if absent (fresh visit) it redirects-past the success screen home.
+ * Post-purchase confirmation. Displays the order returned by the backend
+ * checkout response (passed through navigation state) — order number, placed
+ * date, server-computed totals, delivery and the shipping snapshot. A direct
+ * visit with no order (e.g. a refreshed success page) redirects to the shop.
  */
 export default function OrderSuccessPage() {
-  const [order, setOrder] = useState(() => loadOrder());
-  const navigate = useNavigate();
+  const location = useLocation();
+  const order = location.state?.order ?? null;
 
-  useEffect(() => {
-    if (!loadOrder()) navigate('/collections', { replace: true });
-  }, [navigate]);
+  if (!order) {
+    return <Navigate to="/collections" replace />;
+  }
 
-  const placed = order ? new Date(order.placedAt) : null;
-  const paymentLabel = PAYMENT_METHODS.find((method) => method.id === order?.payment)?.label || 'Payment';
+  const placed = order.placedAt ? new Date(order.placedAt) : null;
+  const paymentLabel = PAYMENT_METHODS.find((method) => method.id === order.paymentMethod)?.label || 'Payment';
   const formatted = placed && !Number.isNaN(placed.getTime())
     ? placed.toLocaleString('en-IN', {
         day: 'numeric',
@@ -39,6 +46,7 @@ export default function OrderSuccessPage() {
         minute: '2-digit',
       })
     : '';
+  const arrivesBy = etaDate(Date.now(), order.delivery?.etaDays ?? 6);
 
   return (
     <motion.section
@@ -65,23 +73,24 @@ export default function OrderSuccessPage() {
         <h1 id="success-title" className="page-title">
           You're all set.
         </h1>
-<p className={styles.lead}>
-            Thanks{order?.shipping?.name ? `, ${order.shipping.name.split(' ')[0]}` : ''} — your
-            order is in and a confirmation email is on its way to
-            {order?.shipping?.email ? ` ${order.shipping.email}` : ' your inbox'}.
-          </p>
+        <p className={styles.lead}>
+          Thanks{order.shipping?.name ? `, ${order.shipping.name.split(' ')[0]}` : ''} — your
+          order is in and a confirmation email is on its way to
+          {order.shipping?.email ? ` ${order.shipping.email}` : ' your inbox'}.
+        </p>
 
         <div className={styles.summary}>
-          <Info label="Order number" value={order?.orderNumber} />
+          <Info label="Order number" value={order.orderNumber} />
           <Info label="Placed at" value={formatted} />
-          <Info label="Delivery" value={order?.delivery?.label} />
-          <Info label="Arrives by" value={order?.etaDate} />
+          <Info label="Delivery" value={order.delivery?.label} />
+          <Info label="Arrives by" value={arrivesBy} />
           <Info label="Payment" value={paymentLabel} />
+          <Info label="Ship to" value={addressLines(order.shipping ?? {})} />
         </div>
 
         <div className={styles.total}>
           <span>Total</span>
-          <strong>{formatINR(order?.totals?.grandTotal || 0)}</strong>
+          <strong>{formatINR(order.totals?.grandTotal || 0)}</strong>
         </div>
 
         <div className={styles.actions}>

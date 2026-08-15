@@ -8,7 +8,7 @@ import styles from './OrderReviewModal.module.css';
  * Final confirmation review before the order is placed.
  * Shows verified shipping, delivery, payment + order totals, then calls placeOrder.
  */
-export default function OrderReviewModal({ open, onClose, onPlace, data, placing }) {
+export default function OrderReviewModal({ open, onClose, onPlace, data, placing, error }) {
   const closeRef = useRef(null);
   const [mounted, setMounted] = useState(false);
 
@@ -113,6 +113,12 @@ export default function OrderReviewModal({ open, onClose, onPlace, data, placing
                 <span>Total ({totals.count} items)</span>
                 <strong>{formatINR(totals.grandTotal || 0)}</strong>
               </div>
+
+              {error && (
+                <p className={styles.error} role="alert">
+                  {error}
+                </p>
+              )}
 
               <button
                 type="button"
