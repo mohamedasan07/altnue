@@ -16,7 +16,7 @@ import { getSupabase } from '../database/client.js';
  */
 
 // Safe columns for anything that may be returned to a client.
-const USER_SAFE_COLUMNS = `
+export const USER_SAFE_COLUMNS = `
   id,
   email,
   first_name,

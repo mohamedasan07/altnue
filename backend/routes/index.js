@@ -11,6 +11,7 @@ import cartRoutes from './cart.routes.js';
 import orderRoutes from './order.routes.js';
 import adminOrderRoutes from './adminOrder.routes.js';
 import dashboardRoutes from './dashboard.routes.js';
+import adminCustomerRoutes from './adminCustomer.routes.js';
 
 /**
  * Aggregates all modular API routers. New route modules register here without
@@ -30,5 +31,6 @@ apiRouter.use('/customer/cart', cartRoutes);
 apiRouter.use('/customer/orders', orderRoutes);
 apiRouter.use('/admin/orders', adminOrderRoutes);
 apiRouter.use('/admin/dashboard', dashboardRoutes);
+apiRouter.use('/admin/customers', adminCustomerRoutes);
 
 export default apiRouter;
