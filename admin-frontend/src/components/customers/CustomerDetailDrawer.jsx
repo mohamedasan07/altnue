@@ -5,6 +5,7 @@ import Button from '../ui/Button'
 import EmptyState from '../ui/EmptyState'
 import CustomerStatusBadge from './CustomerStatusBadge'
 import CustomerStats from './CustomerStats'
+import CustomerWishlist from './CustomerWishlist'
 import CustomerAddresses from './CustomerAddresses'
 import CustomerOrders from './CustomerOrders'
 import CustomerActivity from './CustomerActivity'
@@ -198,6 +199,12 @@ function CustomerDetail({ customerId, onClose, onRetry }) {
         <section className={styles.section}>
           <h3 className={styles.sectionTitle}>Statistics</h3>
           <CustomerStats stats={detail?.stats} />
+        </section>
+
+        {/* ----- Saved Items (read-only wishlist, own request) ----- */}
+        <section className={styles.section}>
+          <h3 className={styles.sectionTitle}>Saved Items</h3>
+          <CustomerWishlist customerId={customerId} />
         </section>
 
         {/* ----- Addresses ----- */}

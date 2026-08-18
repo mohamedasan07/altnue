@@ -159,3 +159,47 @@ export async function findCustomerOrders(userId, { offset = 0, limit = 10 } = {}
   }
   return { ok: true, data, count };
 }
+
+// wishlist rows joined with the live product snapshot for the admin drawer.
+// Mirrors wishlist.repository.js but intentionally does NOT filter out
+// inactive products: an admin should see a customer's saved items including
+// ones that were later deactivated (the UI renders those as unavailable).
+// One joined query — no per-product lookups, no N+1.
+const CUSTOMER_WISHLIST_COLUMNS = `
+  id,
+  user_id,
+  product_id,
+  created_at,
+  product:products (
+    id,
+    name,
+    price,
+    old_price,
+    image_url,
+    stock_quantity,
+    is_active,
+    category:categories ( name )
+  )
+`;
+
+/**
+ * GET /api/admin/customers/:id/wishlist — one customer's saved items, newest
+ * first. Admin read-only: the customer id always comes from the URL path
+ * (never a body/query value), so cross-customer access is impossible by
+ * construction.
+ * @param {string} customerId  user uuid (already validated by the service)
+ * @returns {Promise<{ok: boolean, data?: Array, reason?: string, code?: string}>}
+ */
+export async function findWishlistByCustomer(customerId) {
+  const supabase = getSupabase();
+  if (!supabase) return { ok: false, reason: 'not-configured' };
+
+  const { data, error } = await supabase
+    .from('wishlist')
+    .select(CUSTOMER_WISHLIST_COLUMNS)
+    .eq('user_id', customerId)
+    .order('created_at', { ascending: false });
+
+  if (error) return { ok: false, reason: error.message, code: error.code };
+  return { ok: true, data };
+}

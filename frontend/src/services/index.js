@@ -13,6 +13,7 @@ export {
   updateCartItem,
 } from './cart';
 export { clearStoredWishlist, loadWishlist, saveWishlist } from './wishlistStorage';
+export { addWishlistItem, fetchWishlist, removeWishlistItem } from './wishlist';
 export { fetchOrder, fetchOrders, placeOrder } from './orders';
 export {
   confirmPasswordReset,

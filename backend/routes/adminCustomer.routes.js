@@ -4,6 +4,7 @@ import { authorize } from '../middleware/auth.middleware.js';
 import {
   listCustomersHandler,
   getCustomerHandler,
+  getCustomerWishlistHandler,
 } from '../controllers/adminCustomer.controller.js';
 
 /**
@@ -12,8 +13,9 @@ import {
  * admin-authenticated (authorize('admin')), so only accounts with role
  * "admin" can read customer data. Read-only by design — no write endpoints.
  *
- *   GET /        — paginated customer list (search / filter / sort)
- *   GET /:id     — one customer's profile, stats, addresses, orders, activity
+ *   GET /              — paginated customer list (search / filter / sort)
+ *   GET /:id           — one customer's profile, stats, addresses, orders, activity
+ *   GET /:id/wishlist  — one customer's saved items (Sprint 22.4 Phase 4)
  */
 const router = Router();
 
@@ -21,5 +23,6 @@ router.use(authorize('admin'));
 
 router.get('/', asyncHandler(listCustomersHandler));
 router.get('/:id', asyncHandler(getCustomerHandler));
+router.get('/:id/wishlist', asyncHandler(getCustomerWishlistHandler));
 
 export default router;

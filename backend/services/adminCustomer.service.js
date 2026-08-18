@@ -5,6 +5,7 @@ import {
   findCustomerById,
   fetchCustomerOrderStats,
   findCustomerOrders,
+  findWishlistByCustomer,
 } from '../repositories/adminCustomer.repository.js';
 import { findAllByUser } from '../repositories/address.repository.js';
 import {
@@ -14,6 +15,7 @@ import {
 } from '../validators/adminCustomer.validator.js';
 import { normalizeCustomer } from './customerAuth.service.js';
 import { normalizeOrder } from './order.service.js';
+import { normalizeWishlistItem } from './wishlist.service.js';
 
 /**
  * Admin customer service (Sprint 22.3 Phase 1).
@@ -259,4 +261,30 @@ export async function getAdminCustomer(id, orderQuery = {}) {
     },
     activity: buildCustomerActivity({ profile: user, orders: orderRows, addresses: addressRows }),
   };
+}
+
+/**
+ * GET /api/admin/customers/:id/wishlist — one customer's saved items,
+ * read-only. The customer must exist AND have role "customer" (otherwise
+ * 404). Unlike the customer wishlist endpoint, inactive products are kept in
+ * the response (normalizeWishlistItem marks them isActive:false) so the admin
+ * UI can render an unavailable state instead of silently hiding rows.
+ *
+ * @param {string} id  user uuid (URL path param only — never a body/query)
+ * @returns {Promise<Array>} normalized wishlist items (newest first)
+ * @throws {ApiError} 400 invalid id, 404 customer not found
+ */
+export async function getAdminCustomerWishlist(id) {
+  const customerId = parseCustomerId(id);
+
+  const userResult = await findCustomerById(customerId);
+  if (!userResult.ok) throw toDbError('load customer', userResult);
+  if (!userResult.data || userResult.data.role !== 'customer') {
+    throw new ApiError(404, 'Customer not found');
+  }
+
+  const wishlistResult = await findWishlistByCustomer(customerId);
+  if (!wishlistResult.ok) throw toDbError('load customer wishlist', wishlistResult);
+
+  return (wishlistResult.data || []).map(normalizeWishlistItem);
 }

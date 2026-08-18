@@ -1,6 +1,7 @@
 import {
   listAdminCustomers,
   getAdminCustomer,
+  getAdminCustomerWishlist,
 } from '../services/adminCustomer.service.js';
 
 /**
@@ -20,4 +21,10 @@ export async function listCustomersHandler(req, res) {
 export async function getCustomerHandler(req, res) {
   const data = await getAdminCustomer(req.params.id, req.query);
   res.json({ success: true, ...data });
+}
+
+/** GET /api/admin/customers/:id/wishlist — one customer's saved items (read-only). */
+export async function getCustomerWishlistHandler(req, res) {
+  const items = await getAdminCustomerWishlist(req.params.id);
+  res.json({ success: true, items });
 }

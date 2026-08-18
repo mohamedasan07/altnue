@@ -6,8 +6,9 @@ import api from './api'
  * components, and the JWT is attached automatically by the interceptor.
  *
  * Backend endpoints consumed (exactly as they exist):
- *   GET /admin/customers   → { success, customers, pagination { page, limit, total, totalPages } }
- *   GET /admin/customers/:id → { success, profile, stats, addresses, orders { items, pagination }, activity }
+ *   GET /admin/customers      → { success, customers, pagination { page, limit, total, totalPages } }
+ *   GET /admin/customers/:id  → { success, profile, stats, addresses, orders { items, pagination }, activity }
+ *   GET /admin/customers/:id/wishlist → { success, items }
  *
  * The list is server-side (page / limit / search / status / sort / order) and
  * the detail accepts page / limit for the customer's order sub-list — both
@@ -64,6 +65,22 @@ export async function getCustomer(id, params = {}) {
       notFound.status = 404
       throw notFound
     }
+    throw normalizeError(error)
+  }
+}
+
+/**
+ * GET /admin/customers/:id/wishlist — one customer's saved items (read-only,
+ * Sprint 22.4 Phase 4). Fetched separately from the customer detail so the
+ * wishlist section can load/error independently without reloading the drawer.
+ * @param {string} id
+ * @returns {Promise<Array>} the customer's wishlist items
+ */
+export async function getCustomerWishlist(id) {
+  try {
+    const { data } = await api.get(`/admin/customers/${id}/wishlist`)
+    return Array.isArray(data?.items) ? data.items : []
+  } catch (error) {
     throw normalizeError(error)
   }
 }

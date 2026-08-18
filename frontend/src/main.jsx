@@ -11,15 +11,15 @@ import './styles/index.css';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider>
-      <WishlistProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <WishlistProvider>
           <CartProvider>
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <App />
             </BrowserRouter>
           </CartProvider>
-        </AuthProvider>
-      </WishlistProvider>
+        </WishlistProvider>
+      </AuthProvider>
     </ThemeProvider>
   </StrictMode>
 );
