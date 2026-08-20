@@ -16,6 +16,7 @@ import {
   restoreStock,
   findOrderById,
   findOrdersByUser,
+  cancelOrderById,
 } from '../repositories/order.repository.js';
 import {
   validateOrderPayload,
@@ -24,6 +25,7 @@ import {
   DELIVERY_OPTIONS,
   CURRENCY,
 } from '../validators/order.validator.js';
+import { recordOrderHistory, getOrderHistory } from './orderHistory.service.js';
 
 /**
  * Order service (Sprint 21.3 Phase 3).
@@ -43,8 +45,10 @@ import {
  *   5. insert orders
  *   6. insert order_items
  *   7. mark cart checked_out
+ *   8. record the initial 'pending'/'system' history row (best-effort)
  * Any failure after a write restores the decremented stock and deletes the
- * order row (order_items cascade via FK), so no partial order ever persists.
+ * order row (order_items + history cascade via FK), so no partial order ever
+ * persists.
  */
 
 /** Build a consistent 500 for failed database operations. */
@@ -54,6 +58,9 @@ function toDbError(action, result) {
   err.detail = result?.reason;
   return err;
 }
+
+/** Statuses a customer may cancel before fulfilment begins (Sprint 22.5 P2). */
+const CANCELLABLE_STATUSES = ['pending', 'confirmed', 'processing'];
 
 /** "US-YYYYMMDD-XXXXXXXX" — unique, human-readable order number. */
 function orderNumberFor(idempotencyKey) {
@@ -166,6 +173,12 @@ export async function listOrders(userId) {
 /**
  * GET /api/customer/orders/:id — a single order with its items.
  * Ownership-guarded: returns 404 when the order does not belong to the caller.
+ *
+ * Sprint 22.5 Phase 3: attaches `order.history` ({ status, by, at } per entry,
+ * oldest first) from the real order_status_history rows so the storefront
+ * timeline is truthful. Additive and backward compatible — the history load is
+ * defensive: if it ever fails the order still returns with `history: []`.
+ *
  * @param {string} userId
  * @param {string} orderId
  * @returns {Promise<object>} normalized order
@@ -175,7 +188,85 @@ export async function getOrder(userId, orderId) {
   const result = await findOrderById(id, userId);
   if (!result.ok) throw toDbError('load order', result);
   if (!result.data) throw new ApiError(404, 'Order not found');
-  return normalizeOrder(result.data);
+  const order = normalizeOrder(result.data);
+  try {
+    order.history = await getOrderHistory(id);
+  } catch (err) {
+    logger.warn(`[orders] history load failed for order ${id}: ${err.message}`);
+    order.history = [];
+  }
+  return order;
+}
+
+/**
+ * PATCH /api/customer/orders/:id/cancel — customer self-service cancellation.
+ *
+ * Guards + side effects (Sprint 22.5 Phase 2):
+ *   1. Ownership: the order must belong to req.user.id (404 otherwise). The
+ *      user id never comes from the request body.
+ *   2. Already cancelled → 200 no-op replay (no stock restore, no history).
+ *   3. Not in a cancellable status (pending/confirmed/processing) → 400.
+ *   4. Compare-and-swap transition: the single CAS gate. Only one concurrent
+ *      cancellation wins the `WHERE status = <expected>` update; a loser
+ *      re-reads and replays the cancelled order, so stock is restored exactly
+ *      once and exactly one cancelled history row is written.
+ *   5. Stock restored per line via the shared restoreStock (same helper as
+ *      checkout compensation — best-effort, logged on failure).
+ *   6. Truthful history recorded only after the successful transition
+ *      (recordOrderHistory, orderHistory.service.js).
+ *
+ * @param {string} userId
+ * @param {string} orderId
+ * @returns {Promise<object>} normalized order with status 'cancelled'
+ * @throws {ApiError} 400 invalid id / not cancellable, 404 not found or not owned
+ */
+export async function cancelOrder(userId, orderId) {
+  const id = parseOrderId(orderId);
+  const result = await findOrderById(id, userId);
+  if (!result.ok) throw toDbError('load order', result);
+  const order = result.data;
+  if (!order) throw new ApiError(404, 'Order not found');
+
+  // Idempotent: a repeated cancellation is a safe 200 no-op.
+  if (order.status === 'cancelled') {
+    return normalizeOrder(order);
+  }
+  if (!CANCELLABLE_STATUSES.includes(order.status)) {
+    throw new ApiError(400, 'This order can no longer be cancelled');
+  }
+
+  // CAS transition — the winner restores stock and records history exactly once.
+  const updated = await cancelOrderById(id, userId, order.status);
+  if (!updated.ok) throw toDbError('cancel order', updated);
+
+  if (!updated.data) {
+    // CAS lost → a concurrent cancel (or admin transition) won. Re-read and
+    // replay the cancelled order instead of touching stock or history again.
+    const recheck = await findOrderById(id, userId);
+    if (!recheck.ok) throw toDbError('load order', recheck);
+    if (recheck.data && recheck.data.status === 'cancelled') {
+      return normalizeOrder(recheck.data);
+    }
+    throw new ApiError(400, 'This order can no longer be cancelled');
+  }
+
+  // Winner: restore stock for every line (order_items quantities preserved —
+  // the order row itself is untouched beyond status).
+  for (const item of order.items || []) {
+    const restored = await restoreStock(item.product_id, item.quantity);
+    if (!restored.ok) {
+      logger.warn(`[orders] stock restore on cancel failed for product ${item.product_id}: ${restored.reason}`);
+    }
+  }
+
+  // Truthful history — only after the successful transition, exactly once.
+  try {
+    await recordOrderHistory(id, 'cancelled', 'customer');
+  } catch (err) {
+    logger.warn(`[orders] history record on cancel failed for order ${id}: ${err.message}`);
+  }
+
+  return normalizeOrder(updated.data);
 }
 
 /**
@@ -351,6 +442,19 @@ export async function placeOrder(userId, input) {
   if (!fullResult.data) {
     await compensatePlacement(order.id, decremented);
     throw toDbError('load order', { ok: false, reason: 'order missing after placement' });
+  }
+
+  // --- step 8: initial 'pending'/'system' history row. The order is fully
+  // committed here, so this is best-effort (same convention as customer-cancel
+  // and admin transitions): a failed history write must never fail or duplicate
+  // a successfully placed order, and neither replay path above can reach this
+  // line, so a retry with the same idempotency key can never write a second row.
+  // created_at uses the history service's normal default (now()) — placement
+  // never computes its own placedAt (the orders table defaults it).
+  try {
+    await recordOrderHistory(order.id, 'pending', 'system');
+  } catch (err) {
+    logger.warn(`[orders] initial history record failed for order ${order.id}: ${err.message}`);
   }
 
   return { order: normalizeOrder(fullResult.data), replayed: false };

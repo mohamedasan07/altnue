@@ -1,0 +1,405 @@
+/* UNSORTED — Invoice overlay + print styles (Sprint 22.5 Phase 4) */
+
+@page {
+  size: A4;
+  margin: 14mm;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  background: rgba(6, 6, 6, 0.78);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 52rem;
+  max-height: min(92dvh, 56rem);
+  overflow: hidden;
+  outline: none;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-lg);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  flex: none;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.closeBtn,
+.printBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding-inline: var(--space-5);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.closeBtn {
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-muted);
+}
+
+.closeBtn:hover {
+  color: var(--color-text);
+  border-color: var(--color-text);
+}
+
+.printBtn {
+  background: var(--color-accent);
+  color: #0a0a0a;
+}
+
+.printBtn:hover {
+  background: var(--color-accent-strong);
+  transform: translateY(-1px);
+}
+
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-6);
+  background: #e8e8e6;
+}
+
+/* The sheet is intentionally light and print-first, independent of the
+   storefront dark theme, so the printed page is a clean white invoice. */
+.sheet {
+  width: 100%;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background: #ffffff;
+  color: #16161a;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding-bottom: var(--space-6);
+  border-bottom: 2px solid #16161a;
+}
+
+.brand {
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-wide);
+}
+
+.tagline {
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: #6b6b6b;
+}
+
+.docMeta {
+  text-align: right;
+}
+
+.docTitle {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-tight);
+}
+
+.ref {
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: #4a4a4a;
+}
+
+.ref strong {
+  color: #16161a;
+}
+
+.date {
+  margin-top: 2px;
+  font-size: var(--text-xs);
+  color: #6b6b6b;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  padding: var(--space-6) 0;
+}
+
+.blockTitle {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+
+.lines {
+  display: grid;
+  gap: 2px;
+  color: #2a2a2e;
+}
+
+.lines p {
+  margin: 0;
+}
+
+.items {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.items th {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid #d9d9d6;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+
+.items td {
+  padding: var(--space-3);
+  border-bottom: 1px solid #efefec;
+  vertical-align: top;
+  color: #2a2a2e;
+}
+
+.items .qty {
+  text-align: center;
+}
+
+.items .right {
+  text-align: right;
+}
+
+.itemName {
+  display: block;
+  font-weight: var(--weight-medium);
+  color: #16161a;
+}
+
+.itemMeta {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-xs);
+  color: #6b6b6b;
+}
+
+.foot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  padding-top: var(--space-6);
+}
+
+.dl {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.dlRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.dlRow dt {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+
+.dlRow dd {
+  margin: 0;
+  font-weight: var(--weight-medium);
+  color: #2a2a2e;
+  text-align: right;
+}
+
+.totals {
+  border-left: 1px solid #efefec;
+  padding-left: var(--space-6);
+}
+
+.totalRows {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.totalRow,
+.grandRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.totalRow dt {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+
+.totalRow dd {
+  margin: 0;
+  color: #2a2a2e;
+}
+
+.totalRow .neg {
+  color: #0e7a3d;
+}
+
+.grandRow {
+  margin-top: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: 1px solid #d9d9d6;
+}
+
+.grandRow dt {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: #16161a;
+}
+
+.grandRow dd {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-black);
+  color: #16161a;
+}
+
+.footerNote {
+  margin-top: var(--space-8);
+  padding-top: var(--space-4);
+  border-top: 1px solid #efefec;
+  font-size: var(--text-xs);
+  color: #8a8a8a;
+  text-align: center;
+}
+
+/* ---- Print: only the invoice sheet is visible ----
+   The sheet is portaled to body. Hide the whole app + the overlay chrome, then
+   re-show the sheet and flatten its fixed-position ancestors so it flows onto
+   A4 pages (multi-page supported) with browser "Save as PDF". */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .backdrop {
+    visibility: visible;
+    position: static;
+    display: block;
+    padding: 0;
+    background: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    overflow: visible;
+  }
+
+  .shell {
+    visibility: visible;
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+  }
+
+  .scroll {
+    visibility: visible;
+    position: static;
+    overflow: visible;
+    padding: 0;
+    background: none;
+  }
+
+  .sheet {
+    visibility: visible;
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .toolbar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .columns,
+  .foot {
+    grid-template-columns: 1fr;
+  }
+
+  .head {
+    flex-direction: column;
+  }
+
+  .docMeta {
+    text-align: left;
+  }
+
+  .totals {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .closeBtn,
+  .printBtn {
+    transition: none;
+  }
+}

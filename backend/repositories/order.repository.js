@@ -287,3 +287,39 @@ export async function restoreStock(productId, quantity) {
   if (error) return { ok: false, reason: error.message, code: error.code };
   return { ok: true, data: true };
 }
+
+/**
+ * Compare-and-swap order cancellation — the concurrency gate for the whole
+ * cancel flow (Sprint 22.5 Phase 2).
+ *
+ * `UPDATE orders SET status = 'cancelled' WHERE id = ? AND user_id = ? AND
+ * status = <expected>`. Only one concurrent cancellation wins; a loser matches
+ * zero rows (data: null) and the service re-reads to replay the already
+ * cancelled order. Because stock restore and history recording run only after
+ * this conditional update succeeds, a double-cancel can never restore stock or
+ * write a history row twice. Same CAS philosophy as decrementStock.
+ *
+ * Returns the freshly updated row (with items) so the service can normalize
+ * the response directly.
+ *
+ * @param {string} id             order uuid
+ * @param {string} userId         owner uuid (ownership guard)
+ * @param {string} expectedStatus the status observed before the transition
+ * @returns {Promise<{ok: boolean, data?: object|null, reason?: string, code?: string}>}
+ */
+export async function cancelOrderById(id, userId, expectedStatus) {
+  const supabase = getSupabase();
+  if (!supabase) return { ok: false, reason: 'not-configured' };
+
+  const { data, error } = await supabase
+    .from('orders')
+    .update({ status: 'cancelled' })
+    .eq('id', id)
+    .eq('user_id', userId)
+    .eq('status', expectedStatus)
+    .select(ORDER_WITH_ITEMS)
+    .maybeSingle();
+
+  if (error) return { ok: false, reason: error.message, code: error.code };
+  return { ok: true, data };
+}

@@ -227,20 +227,22 @@
 }
 
 .foot {
+  display: flex;
+  gap: var(--space-3);
   flex: none;
   padding: var(--space-4) var(--space-6) calc(var(--space-5) + env(safe-area-inset-bottom));
   border-top: 1px solid var(--color-border);
 }
 
-.done {
+.done,
+.cancelBtn,
+.invoiceBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  flex: 1;
   height: 3rem;
   border-radius: var(--radius-pill);
-  background: var(--color-accent);
-  color: #0a0a0a;
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
@@ -251,8 +253,35 @@
     transform var(--dur-fast) var(--ease-out);
 }
 
+.done {
+  background: var(--color-accent);
+  color: #0a0a0a;
+}
+
 .done:hover {
   background: var(--color-accent-strong);
+  transform: translateY(-1px);
+}
+
+.cancelBtn {
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+}
+
+.cancelBtn:hover {
+  background: var(--color-danger);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.invoiceBtn {
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+}
+
+.invoiceBtn:hover {
+  background: var(--color-accent);
+  color: #0a0a0a;
   transform: translateY(-1px);
 }
 
@@ -265,7 +294,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .close,
-  .done {
+  .done,
+  .cancelBtn,
+  .invoiceBtn {
     transition: none;
   }
 }

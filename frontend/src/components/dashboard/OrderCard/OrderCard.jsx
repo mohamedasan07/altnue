@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import OrderStatusBadge from '../../orders/OrderStatusBadge/OrderStatusBadge';
 import ItemThumb from '../../account/ItemThumb/ItemThumb';
+import { canCancelOrder } from '../../../utils/orderStatus';
+import { canShowInvoice } from '../../../utils/invoice';
 import { formatINR } from '../../../utils/format';
 import styles from './OrderCard.module.css';
 
@@ -13,13 +15,19 @@ const dateOf = (iso) => {
 
 /**
  * Compact order row — id, date, status, first item + count, total and actions.
- * Track Order + Download Invoice are UI-only placeholders.
+ * Track Order is a UI-only placeholder. Cancel Order is shown only for
+ * cancellable statuses (pending/confirmed/processing) and opens the
+ * confirmation modal via onCancelOrder; the backend remains the authority.
+ * Invoice opens the customer invoice overlay from the order's own snapshot
+ * data (no extra API call); it only appears when the order has items.
  */
-export default function OrderCard({ order, onView }) {
+export default function OrderCard({ order, onView, onCancelOrder, onInvoice }) {
   const items = order?.items ?? [];
   const first = items[0];
   const restCount = Math.max(0, items.length - 1);
   const totalCount = items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
+  const cancellable = canCancelOrder(order?.status);
+  const invoicable = canShowInvoice(order);
 
   return (
     <motion.article
@@ -66,6 +74,15 @@ export default function OrderCard({ order, onView }) {
           <button type="button" className={styles.details} onClick={() => onView(order)}>
             View Details
           </button>
+          {cancellable && (
+            <button
+              type="button"
+              className={styles.cancelBtn}
+              onClick={() => onCancelOrder && onCancelOrder(order)}
+            >
+              Cancel Order
+            </button>
+          )}
           <button
             type="button"
             className={styles.ghostBtn}
@@ -74,14 +91,15 @@ export default function OrderCard({ order, onView }) {
           >
             Track Order
           </button>
-          <button
-            type="button"
-            className={styles.ghostBtn}
-            aria-disabled="true"
-            title="Invoice download arrives with a backend"
-          >
-            Download Invoice
-          </button>
+          {invoicable && onInvoice && (
+            <button
+              type="button"
+              className={styles.invoiceBtn}
+              onClick={() => onInvoice(order)}
+            >
+              Invoice
+            </button>
+          )}
         </div>
       </div>
     </motion.article>

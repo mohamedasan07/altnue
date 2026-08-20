@@ -2,6 +2,7 @@ import {
   listOrders,
   getOrder,
   placeOrder,
+  cancelOrder,
 } from '../services/order.service.js';
 
 /**
@@ -27,4 +28,10 @@ export async function getOrderHandler(req, res) {
 export async function createOrderHandler(req, res) {
   const { order, replayed } = await placeOrder(req.user.id, req.body);
   res.status(replayed ? 200 : 201).json({ success: true, order, replayed });
+}
+
+/** PATCH /api/customer/orders/:id/cancel — cancel an own, cancellable order. */
+export async function cancelOrderHandler(req, res) {
+  const order = await cancelOrder(req.user.id, req.params.id);
+  res.json({ success: true, order });
 }

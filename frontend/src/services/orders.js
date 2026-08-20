@@ -44,3 +44,16 @@ export async function placeOrder(payload) {
   });
   return { order: data.order, replayed: Boolean(data.replayed) };
 }
+
+/**
+ * PATCH /api/customer/orders/:id/cancel — cancel an own, cancellable order.
+ *
+ * The backend enforces ownership, cancellable status and idempotency; the
+ * client only sends the order id. Throws on error (400 not cancellable, 404
+ * not found, 500) exactly like every other service call via the shared
+ * request() helper. Returns the updated (cancelled) order.
+ */
+export async function cancelOrder(id) {
+  const data = await request(`/api/customer/orders/${id}/cancel`, { method: 'PATCH' });
+  return data.order;
+}

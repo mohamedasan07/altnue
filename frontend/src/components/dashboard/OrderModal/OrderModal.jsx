@@ -6,6 +6,8 @@ import { PAYMENT_METHODS } from '../../../hooks/useCheckout';
 import OrderStatusBadge from '../../orders/OrderStatusBadge/OrderStatusBadge';
 import OrderTimeline from '../../orders/OrderTimeline/OrderTimeline';
 import ItemThumb from '../../account/ItemThumb/ItemThumb';
+import { canCancelOrder } from '../../../utils/orderStatus';
+import { canShowInvoice } from '../../../utils/invoice';
 import { formatINR } from '../../../utils/format';
 import styles from './OrderModal.module.css';
 
@@ -28,10 +30,15 @@ const dateOf = (iso) => {
 };
 
 /**
- * Order details modal — summary, products, shipping, payment and a status
- * timeline. Portal'd, focus-trapped, closes on ESC / backdrop / ✕.
+ * Order details modal — summary, products, shipping, payment and a truthful
+ * status timeline from order.history. Portal'd, focus-trapped, closes on ESC /
+ * backdrop / ✕. When cancellable (pending/confirmed/processing) and an
+ * onCancelOrder handler is provided, a Cancel Order action is shown in the
+ * footer that opens the shared confirmation modal. When the order has item
+ * snapshots and an onInvoice handler is provided, an Invoice action opens the
+ * customer invoice overlay from the same order data.
  */
-export default function OrderModal({ order, open, onClose }) {
+export default function OrderModal({ order, open, onClose, onCancelOrder, onInvoice }) {
   const panelRef = useFocusTrap(open);
   const closeRef = useRef(null);
 
@@ -162,7 +169,7 @@ export default function OrderModal({ order, open, onClose }) {
 
               <section className={styles.block} aria-label="Order status timeline">
                 <h3 className={styles.blockTitle}>Timeline</h3>
-                <OrderTimeline status={order.status} />
+                <OrderTimeline history={order.history} status={order.status} />
               </section>
 
               <div className={styles.totals}>
@@ -190,6 +197,23 @@ export default function OrderModal({ order, open, onClose }) {
             </div>
 
             <footer className={styles.foot}>
+              {canCancelOrder(order.status) && onCancelOrder && (
+                <button
+                  type="button"
+                  className={styles.cancelBtn}
+                  onClick={() => {
+                    onClose();
+                    onCancelOrder(order);
+                  }}
+                >
+                  Cancel Order
+                </button>
+              )}
+              {canShowInvoice(order) && onInvoice && (
+                <button type="button" className={styles.invoiceBtn} onClick={() => onInvoice(order)}>
+                  Invoice
+                </button>
+              )}
               <button type="button" className={styles.done} onClick={onClose}>
                 Done
               </button>

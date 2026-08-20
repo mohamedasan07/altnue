@@ -7,9 +7,9 @@
  * status here.
  *
  * Each entry maps to a badge accent (module.css) and a filter option. The
- * timeline builder derives a read-only status progression from the current
- * order fields (placedAt / createdAt / updatedAt), since the backend stores
- * no per-transition audit history.
+ * timeline builder (Sprint 22.5 Phase 5) consumes the real order_status_history
+ * rows the backend attaches as `order.history` — never derives a progression
+ * from the current status.
  */
 
 export const ORDER_STATUS_META = {
@@ -73,47 +73,57 @@ export function getPaymentStatusMeta(status) {
   return PAYMENT_STATUS_META[status] || { label: String(status || '—'), accent: 'info' }
 }
 
-const FULFILMENT_STEPS = ['confirmed', 'processing', 'shipped', 'delivered']
+const ACTOR_LABELS = {
+  system: 'System',
+  customer: 'Customer',
+  admin: 'Admin',
+}
+
+/** Humanize a history actor role, with a neutral fallback for unknown roles. */
+export function formatActor(role) {
+  return ACTOR_LABELS[role] || 'System'
+}
 
 /**
- * Build a read-only milestone timeline for an order.
+ * Build the order timeline from real order_status_history rows.
  *
- * Milestones are derived from the order's current fields (no audit history is
- * stored), so each step is either done, active (the current status), or
- * upcoming. Dates use placedAt for the placed milestone and updatedAt for the
- * active step — the only timestamps the backend exposes.
+ * Each entry is an actual recorded transition ({ status, by, at }, oldest
+ * first, attached as `order.history` by the backend admin detail endpoint):
+ * the status label comes from the order-status metadata and the actor +
+ * timestamp come straight from the history row — nothing is derived from the
+ * current status or invented.
+ *
+ * Defensive fallback: when no history is available a single step shows only
+ * the current status with no invented timestamp or actor.
  *
  * @param {object} order  normalized admin order
- * @returns {Array<{ id: string, label: string, date: string|null, state: string }>}
+ * @returns {Array<{ id: string, label: string, date: string|null, actor: string|null, state: string }>}
  */
 export function buildOrderTimeline(order) {
   if (!order) return []
 
-  const steps =
-    order.status === 'cancelled'
-      ? ['cancelled']
-      : FULFILMENT_STEPS.slice(0, FULFILMENT_STEPS.indexOf(order.status) + 1)
+  const history =
+    Array.isArray(order.history) && order.history.length > 0
+      ? order.history
+      : null
 
-  const milestones = [
-    {
-      id: 'placed',
-      label: 'Order Placed',
-      date: order.placedAt || null,
-      state: 'done',
-    },
-    {
-      id: 'payment',
-      label: getPaymentStatusMeta(order.paymentStatus).label,
-      date: order.paymentStatus !== 'pending' ? order.updatedAt || null : null,
-      state: order.paymentStatus === 'pending' ? 'active' : 'done',
-    },
-    ...steps.map((step) => ({
-      id: step,
-      label: getOrderStatusMeta(step).label,
-      date: step === order.status ? order.updatedAt || null : null,
-      state: step === order.status ? 'active' : 'done',
-    })),
-  ]
+  if (!history) {
+    return [
+      {
+        id: 'current',
+        label: getOrderStatusMeta(order.status).label,
+        date: null,
+        actor: null,
+        state: 'done',
+      },
+    ]
+  }
 
-  return milestones
+  return history.map((entry, i) => ({
+    id: `${entry.status}-${i}`,
+    label: getOrderStatusMeta(entry.status).label,
+    date: entry.at || null,
+    actor: entry.by || null,
+    state: 'done',
+  }))
 }
