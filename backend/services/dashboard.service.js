@@ -20,6 +20,10 @@ import {
   DEFAULT_LIMIT,
   DEFAULT_LOW_STOCK_THRESHOLD,
 } from '../validators/dashboard.validator.js';
+import {
+  ORDER_STATUSES,
+  PAYMENT_STATUSES,
+} from '../validators/adminOrder.validator.js';
 
 /**
  * Admin dashboard service (Sprint 22.2 Phase 1).
@@ -33,6 +37,11 @@ import {
  * Revenue excludes cancelled/refunded orders (definitional, per
  * SPRINT_22_2_AUDIT.md §3.2). "Change percent" is month-over-month vs the
  * previous full month, matching the stat cards' "vs last month" hint.
+ *
+ * Sprint 22.6: the stats payload additionally carries zero-filled order-status
+ * and payment-status breakdowns plus average order value (AOV) for the admin
+ * Analytics page. AOV shares the revenue definition — its denominator is the
+ * number of revenue-eligible sale orders, and it is null when there are none.
  */
 
 /** Statuses that never count toward revenue or sales. */
@@ -72,6 +81,26 @@ function monthLabel(key) {
 function percentChange(current, previous) {
   if (!previous) return null;
   return Math.round(((current - previous) / previous) * 1000) / 10;
+}
+
+/**
+ * Zero-filled status counts over the schema's full CHECK vocabulary, so the
+ * Analytics UI never has to special-case a missing key. The vocabularies are
+ * imported from the admin order validator — the same allowlist that guards
+ * writes — so this can never drift from the schema.
+ * @param {Array} rows  raw rows with a `status` (or `payment_status`) column
+ * @param {string} column  row column to count ('status' | 'payment_status')
+ * @param {Array<string>} vocabulary  the full allowed value list
+ * @returns {Object<string, number>} every vocabulary key -> count (0 included)
+ */
+function countByStatus(rows, column, vocabulary) {
+  const counts = {};
+  for (const value of vocabulary) counts[value] = 0;
+  for (const row of rows || []) {
+    const value = row[column];
+    if (value != null && value in counts) counts[value] += 1;
+  }
+  return counts;
 }
 
 /**
@@ -152,6 +181,13 @@ export async function getDashboardStats() {
   const revenueThisMonth = Math.round(revenue(thisMonthSales) * 100) / 100;
   const revenuePrevMonth = Math.round(revenue(prevMonthSales) * 100) / 100;
 
+  // AOV over revenue-eligible sale orders only (same exclusion as revenue);
+  // null when there are no eligible orders so the UI can render "—".
+  const averageOrderValue =
+    saleRows.length > 0
+      ? Math.round((totalRevenue / saleRows.length) * 100) / 100
+      : null;
+
   const stats = {
     totalRevenue,
     revenueChangePercent: percentChange(revenueThisMonth, revenuePrevMonth),
@@ -178,6 +214,10 @@ export async function getDashboardStats() {
     lowStockProducts: productRows.filter(
       (row) => row.is_active === true && (Number(row.stock_quantity) || 0) <= DEFAULT_LOW_STOCK_THRESHOLD
     ).length,
+    // Sprint 22.6 — Analytics additions (additive; existing keys untouched).
+    averageOrderValue,
+    orderStatusBreakdown: countByStatus(orderRows, 'status', ORDER_STATUSES),
+    paymentStatusBreakdown: countByStatus(orderRows, 'payment_status', PAYMENT_STATUSES),
   };
 
   return { stats, salesOverview: computeSalesOverview(orderRows, DEFAULT_MONTHS) };

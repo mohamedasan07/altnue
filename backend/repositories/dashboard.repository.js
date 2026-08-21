@@ -23,7 +23,7 @@ const FULL_SCAN = [0, 99999];
 
 /**
  * All orders' stats columns — one fetch the service uses to derive revenue,
- * per-status counts and MoM deltas.
+ * per-status counts, payment-status breakdown and MoM deltas.
  * @returns {Promise<{ok: boolean, data?: Array, count?: number, reason?: string, code?: string}>}
  */
 export async function fetchOrderStatsRows() {
@@ -32,7 +32,7 @@ export async function fetchOrderStatsRows() {
 
   const { data, error, count } = await supabase
     .from('orders')
-    .select('status, grand_total, placed_at', { count: 'exact' })
+    .select('status, payment_status, grand_total, placed_at', { count: 'exact' })
     .range(...FULL_SCAN);
 
   if (error) return { ok: false, reason: error.message, code: error.code };

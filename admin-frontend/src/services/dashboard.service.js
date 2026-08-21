@@ -11,8 +11,9 @@ import api from './api'
  *     recentActivity, bestSellers, latestCustomers }
  *
  * bestSellers / latestCustomers are returned by the aggregate but are not
- * rendered by the dashboard in Sprint 22.2 (they back a future Analytics /
- * Customers page). The payload is passed through untouched so callers decide.
+ * rendered by the dashboard (bestSellers backs the Analytics page since
+ * Sprint 22.6; latestCustomers remains available for a future page). The
+ * payload is passed through untouched so callers decide.
  */
 
 function normalizeError(error) {
@@ -43,6 +44,85 @@ export async function getDashboard() {
       ...EMPTY_DASHBOARD,
       ...(data || {}),
     }
+  } catch (error) {
+    throw normalizeError(error)
+  }
+}
+
+/**
+ * Granular endpoints (Sprint 22.6) — the same service functions the aggregate
+ * composes, exposed so the Analytics page can fetch exactly what it renders
+ * and re-fetch the sales trend on range changes without reloading everything.
+ * Each returns only its slice of the payload; errors normalize identically.
+ */
+
+const EMPTY_STATS = {
+  stats: {},
+  salesOverview: [],
+}
+
+/** GET /admin/dashboard/stats — stat cards (+ breakdowns/AOV) + 6-month trend. */
+export async function getStats() {
+  try {
+    const { data } = await api.get('/admin/dashboard/stats')
+    return {
+      ...EMPTY_STATS,
+      ...(data || {}),
+    }
+  } catch (error) {
+    throw normalizeError(error)
+  }
+}
+
+/** GET /admin/dashboard/sales?months=N — monthly revenue/orders trend. */
+export async function getSalesOverview(months = 6) {
+  try {
+    const { data } = await api.get('/admin/dashboard/sales', {
+      params: { months },
+    })
+    return Array.isArray(data?.salesOverview) ? data.salesOverview : []
+  } catch (error) {
+    throw normalizeError(error)
+  }
+}
+
+const EMPTY_RECENT_ORDERS = []
+
+/** GET /admin/dashboard/recent-orders?limit=N — newest orders with items. */
+export async function getRecentOrders(limit = 5) {
+  try {
+    const { data } = await api.get('/admin/dashboard/recent-orders', {
+      params: { limit },
+    })
+    return Array.isArray(data?.recentOrders) ? data.recentOrders : EMPTY_RECENT_ORDERS
+  } catch (error) {
+    throw normalizeError(error)
+  }
+}
+
+const EMPTY_LOW_STOCK = []
+
+/** GET /admin/dashboard/low-stock — active products at/below threshold. */
+export async function getLowStockProducts({ threshold, limit } = {}) {
+  try {
+    const { data } = await api.get('/admin/dashboard/low-stock', {
+      params: { threshold, limit },
+    })
+    return Array.isArray(data?.lowStockProducts) ? data.lowStockProducts : EMPTY_LOW_STOCK
+  } catch (error) {
+    throw normalizeError(error)
+  }
+}
+
+const EMPTY_BEST_SELLERS = []
+
+/** GET /admin/dashboard/best-sellers?limit=N — top products by units sold. */
+export async function getBestSellers(limit = 5) {
+  try {
+    const { data } = await api.get('/admin/dashboard/best-sellers', {
+      params: { limit },
+    })
+    return Array.isArray(data?.bestSellers) ? data.bestSellers : EMPTY_BEST_SELLERS
   } catch (error) {
     throw normalizeError(error)
   }

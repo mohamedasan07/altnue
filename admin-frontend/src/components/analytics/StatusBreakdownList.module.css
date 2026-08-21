@@ -1,0 +1,117 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.badgeWrap {
+  display: flex;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.barTrack {
+  display: block;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-background-subtle);
+  overflow: hidden;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+.count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.share {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+/* ----- Badge accents (mirror utils/orderStatus.js accents) ----- */
+
+.success {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.info {
+  background: var(--color-info-soft);
+  color: var(--color-info);
+}
+
+.warning {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.secondary {
+  background: var(--color-secondary-soft);
+  color: var(--color-secondary);
+}
+
+.purple {
+  background: var(--color-purple-soft);
+  color: var(--color-purple);
+}
+
+/* ----- Bar fill colors (same hues as the badges) ----- */
+
+.fill_success {
+  background: var(--color-success);
+}
+
+.fill_info {
+  background: var(--color-info);
+}
+
+.fill_warning {
+  background: var(--color-warning);
+}
+
+.fill_danger {
+  background: var(--color-danger);
+}
+
+.fill_secondary {
+  background: var(--color-secondary);
+}
+
+.fill_purple {
+  background: var(--color-purple);
+}
