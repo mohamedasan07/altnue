@@ -23,7 +23,7 @@ const router = Router();
 router.use(authorize('customer'));
 
 router.post('/', asyncHandler(createOrderHandler));
-router.get('/', listOrdersHandler);
+router.get('/', asyncHandler(listOrdersHandler));
 router.get('/:id', asyncHandler(getOrderHandler));
 router.patch('/:id/cancel', asyncHandler(cancelOrderHandler));
 

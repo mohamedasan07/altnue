@@ -22,7 +22,7 @@ const router = Router();
 
 router.use(authorize('customer'));
 
-router.get('/', listAddressesHandler);
+router.get('/', asyncHandler(listAddressesHandler));
 router.post('/', asyncHandler(createAddressHandler));
 router.put('/:id', asyncHandler(updateAddressHandler));
 router.delete('/:id', asyncHandler(deleteAddressHandler));

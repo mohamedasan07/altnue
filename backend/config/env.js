@@ -36,7 +36,8 @@ export function loadEnv() {
     // Folder inside the Cloudinary media library for admin uploads.
     CLOUDINARY_UPLOAD_FOLDER: raw.CLOUDINARY_UPLOAD_FOLDER || 'products',
 
-    // CORS allow-list (server.js) + admin login credentials (auth.service.js).
+    // CORS allow-list (server.js) + admin identity (auth.service.js).
+    // ADMIN_PASSWORD is no longer used to verify logins — see ADMIN_PASSWORD_HASH.
     CORS_ORIGINS: raw.CORS_ORIGINS || '',
     ADMIN_EMAIL: raw.ADMIN_EMAIL || 'admin@unsorted.com',
     ADMIN_PASSWORD: raw.ADMIN_PASSWORD || 'admin123',
@@ -49,11 +50,21 @@ export function loadEnv() {
     // Customer tokens use a longer default lifetime (Sprint 21.1). Admin
     // tokens keep JWT_EXPIRES_IN above.
     JWT_EXPIRES_IN_CUSTOMER: raw.JWT_EXPIRES_IN_CUSTOMER || '7d',
-    // Optional bcrypt hash of the admin password (recommended for production).
-    // When absent, login falls back to the legacy plaintext ADMIN_PASSWORD so
-    // existing local setups keep working.
+    // REQUIRED bcrypt hash of the admin password (Sprint 22.6 P1). Admin login
+    // refuses to authenticate without it: there is NO plaintext fallback and
+    // the auth service fails loudly (500) when it is missing. ADMIN_PASSWORD
+    // above is no longer used for verification and is kept only for docs/legacy
+    // references.
     ADMIN_PASSWORD_HASH: raw.ADMIN_PASSWORD_HASH || '',
     ADMIN_NAME: raw.ADMIN_NAME || 'Administrator',
     ADMIN_ROLE: raw.ADMIN_ROLE || 'admin',
+
+    // Rate limiting (Sprint 22.6 P1) — per-IP attempt caps for auth endpoints.
+    // Windows are fixed (15 min for logins, 60 min for register/forgot-password);
+    // the limits themselves are configurable. Requests over the cap get 429.
+    RATE_LIMIT_ADMIN_LOGIN: raw.RATE_LIMIT_ADMIN_LOGIN || '10',
+    RATE_LIMIT_CUSTOMER_LOGIN: raw.RATE_LIMIT_CUSTOMER_LOGIN || '20',
+    RATE_LIMIT_REGISTER: raw.RATE_LIMIT_REGISTER || '10',
+    RATE_LIMIT_FORGOT_PASSWORD: raw.RATE_LIMIT_FORGOT_PASSWORD || '5',
   };
 }

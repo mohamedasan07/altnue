@@ -22,7 +22,7 @@ const router = Router();
 
 router.use(authorize('customer'));
 
-router.get('/', listWishlistHandler);
+router.get('/', asyncHandler(listWishlistHandler));
 router.post('/', asyncHandler(addWishlistItemHandler));
 router.delete('/:productId', asyncHandler(removeWishlistItemHandler));
 

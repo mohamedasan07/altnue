@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import { randomUUID } from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -27,12 +28,66 @@ const projectRoot = path.resolve(__dirname, '..');
 const app = express();
 app.disable('x-powered-by');
 
-// =====================
-// CORS configuration — auto-switches between dev and production
-// =====================
 // Hosts such as Render set NODE_ENV=production automatically. Local `npm run
 // dev` leaves it unset, so we default to development mode unless told otherwise.
 const isProduction = process.env.NODE_ENV === 'production';
+
+// Trust exactly one proxy hop (Render's edge router). Required so `req.ip` is
+// the real client IP behind the platform proxy — express-rate-limit keys its
+// per-IP buckets on it and REFUSES to run when X-Forwarded-For is present with
+// trust proxy disabled (it would 500 every auth request in production). A
+// numeric hop count cannot be spoofed by extra client-supplied XFF entries;
+// `true` would be spoofable and is rejected by the limiter's validation.
+app.set('trust proxy', 1);
+
+// =====================
+// Security headers (Helmet) — Sprint 22.6 P1
+// =====================
+// Applies defense-in-depth headers to every response: X-Content-Type-Options,
+// X-Frame-Options + frame-ancestors (clickjacking), HSTS (HTTPS only),
+// Referrer-Policy, plus a Content-Security-Policy tuned to the resources the
+// backend actually serves (JSON API + the legacy landing page that is still
+// mounted until Phase 2 removal).
+//
+// CSP notes (deliberate, not blind):
+//  - 'unsafe-inline' for script/style is required by the legacy index.html
+//    (inline <script> blocks, onclick handlers, inline style attributes) and
+//    must be removed once the legacy site is retired in Phase 2.
+//  - img-src allows Cloudinary + Unsplash (legacy product imagery); the modern
+//    React frontends are served by Vercel with their own headers, so they are
+//    unaffected by this CSP.
+//  - Razorpay is confirmed dead/placeholder — its CDN is intentionally NOT
+//    allowed anywhere in the CSP.
+//  - connect-src includes the deployed Render backend so the legacy page's
+//    fetch() calls keep working regardless of which origin hosts the page.
+//  - crossOriginResourcePolicy 'cross-origin' aligns with this API's design:
+//    it is intentionally consumable cross-origin via the CORS allow-list.
+//  - upgrade-insecure-requests (a Helmet default) is production-only: over
+//    plain-HTTP local dev it would rewrite http://localhost:3001/style.css to
+//    https:// and break the legacy page's own assets. Render serves HTTPS, so
+//    the upgrade is safe (and desirable) there.
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com', 'https://images.unsplash.com'],
+      connectSrc: ["'self'", 'https://unsorted-backend.onrender.com'],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      frameAncestors: ["'self'"],
+      formAction: ["'self'"],
+      upgradeInsecureRequests: isProduction ? [] : null,
+    },
+  },
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
+
+// =====================
+// CORS configuration — auto-switches between dev and production
+// =====================
 
 // Production allow-list is read from CORS_ORIGINS (comma-separated domains).
 // e.g. CORS_ORIGINS=https://unsorted-swart.vercel.app,https://staging.example.com
@@ -55,6 +110,17 @@ function normalizeOrigin(origin) {
 const allowedOrigins = isProduction
   ? new Set(parseCorsOrigins(process.env.CORS_ORIGINS).map(normalizeOrigin))
   : new Set();
+
+// Sprint 22.6 P1: fail loudly on a likely production misconfiguration. An empty
+// allow-list in production blocks every browser origin (the React storefront
+// calls this backend cross-origin), which manifests as silent API failures —
+// surface it at boot so it cannot go unnoticed. Failing closed is still safer
+// than an accidental wildcard; this warning only makes the risk visible.
+if (isProduction && allowedOrigins.size === 0) {
+  logger.warn(
+    'CORS_ORIGINS is empty in production — no browser origin can reach this API. Set CORS_ORIGINS to the deployed frontend origin(s) (comma-separated).'
+  );
+}
 
 // `origin` receives the request Origin header (or undefined for non-browser
 // requests like curl/Postman/server-to-server). Callback signature:

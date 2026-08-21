@@ -15,7 +15,7 @@ import {
  */
 const router = Router();
 
-router.get('/profile', authorize('customer'), getProfileHandler);
+router.get('/profile', authorize('customer'), asyncHandler(getProfileHandler));
 router.put('/profile', authorize('customer'), asyncHandler(updateProfileHandler));
 
 export default router;

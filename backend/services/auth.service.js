@@ -48,19 +48,25 @@ function buildAdminProfile() {
 }
 
 /**
- * Verify a candidate password against the configured admin secret.
+ * Verify a candidate password against the configured admin credential.
  *
- * Prefers a bcrypt hash (ADMIN_PASSWORD_HASH) — the production-grade path.
- * Falls back to the legacy plaintext ADMIN_PASSWORD so existing local/dev
- * environments keep working without first generating a hash.
+ * Sprint 22.6 P1: admin auth REQUIRES a bcrypt hash (ADMIN_PASSWORD_HASH).
+ * There is deliberately NO plaintext fallback — if the hash is missing the
+ * environment is misconfigured and we fail loudly (500) instead of silently
+ * comparing a plaintext env value. An invalid/malformed hash simply never
+ * matches (bcrypt.compareSync returns false → 401), which is a safe failure.
  */
 function verifyPassword(candidate) {
   const { admin } = config.auth;
 
-  if (admin.passwordHash) {
-    return bcrypt.compareSync(candidate, admin.passwordHash);
+  if (!admin.passwordHash) {
+    throw authError(
+      500,
+      'ADMIN_PASSWORD_HASH is not configured. Add a bcrypt hash of the admin password to the backend environment before enabling admin authentication.'
+    );
   }
-  return candidate === admin.password;
+
+  return bcrypt.compareSync(candidate, admin.passwordHash);
 }
 
 /**

@@ -51,12 +51,22 @@ export const config = {
     admin: {
       id: 1,
       email: env.ADMIN_EMAIL,
-      // Optional bcrypt hash; login verifies with bcrypt when present.
+      // REQUIRED bcrypt hash (Sprint 22.6 P1). Login fails safely (500) when
+      // absent — there is no plaintext fallback anymore.
       passwordHash: env.ADMIN_PASSWORD_HASH,
-      // Plaintext fallback (legacy default) used only when no hash is set.
+      // Kept for documentation only — no longer used for verification.
       password: env.ADMIN_PASSWORD,
       name: env.ADMIN_NAME,
       role: env.ADMIN_ROLE,
     },
+  },
+
+  // Per-IP rate limits for public auth endpoints (Sprint 22.6 P1).
+  // Windows are fixed in the rate-limit middleware; limits are env-configurable.
+  rateLimit: {
+    adminLogin: Number(env.RATE_LIMIT_ADMIN_LOGIN) || 10,
+    customerLogin: Number(env.RATE_LIMIT_CUSTOMER_LOGIN) || 20,
+    register: Number(env.RATE_LIMIT_REGISTER) || 10,
+    forgotPassword: Number(env.RATE_LIMIT_FORGOT_PASSWORD) || 5,
   },
 };
