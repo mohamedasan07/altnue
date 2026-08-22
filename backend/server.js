@@ -1,26 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { randomUUID } from 'crypto';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
 import apiRouter from './routes/index.js';
 import { notFound } from './middleware/notFound.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { verifyConnections } from './services/connection.service.js';
-import { listProducts, getProduct } from './services/product.service.js';
+import { listProducts } from './services/product.service.js';
 import { logger } from './utils/logger.js';
 
 dotenv.config();
-
-// =====================
-// Path resolution
-// =====================
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, '..');
 
 // =====================
 // Express App Setup
@@ -158,93 +148,6 @@ app.use(express.json());
 // and /image endpoints so nothing can fall back to a local folder.
 app.use('/image', (req, res) => res.status(404).json({ error: 'Not found' }));
 app.use('/images', (req, res) => res.status(404).json({ error: 'Not found' }));
-
-// Serve ONLY the legacy customer-site files (title/logo/product images all
-// come from Cloudinary/CDNs, so these five files are the complete local
-// surface). Everything else in the repository root — backend/, frontend/ and
-// admin-frontend/ source — is deliberately NOT exposed, so no internal files
-// (e.g. server code, package manifests, schema) leak over HTTP.
-const LEGACY_SITE_FILES = [
-  'index.html',
-  'style.css',
-  'script.js',
-  'checkout_patch.js',
-  'razorpay_checkout.js',
-];
-
-function serveLegacyFile(file) {
-  return (_req, res) => {
-    res.sendFile(path.join(projectRoot, file));
-  };
-}
-
-for (const file of LEGACY_SITE_FILES) {
-  app.get(`/${file === 'index.html' ? '' : file}`, serveLegacyFile(file));
-}
-app.get('/index.html', serveLegacyFile('index.html'));
-
-// =====================
-// Cart API (in-memory, for the legacy customer-site sync)
-// =====================
-let cart = [];
-
-app.get('/cart', (req, res) => {
-  res.json({ cart });
-});
-
-app.post('/cart', async (req, res) => {
-  const { productId, quantity } = req.body || {};
-  const qty = Math.max(1, Number(quantity) || 1);
-
-  // Products live in Supabase — resolve the snapshot fields for the cart line.
-  let product = null;
-  try {
-    product = await getProduct(productId);
-  } catch {
-    product = null;
-  }
-  if (!product) return res.status(404).json({ error: 'Product not found' });
-
-  const existing = cart.find(i => i.productId === Number(productId));
-  if (existing) {
-    existing.quantity += qty;
-    return res.json({ cart });
-  }
-
-  cart.push({
-    id: randomUUID(),
-    productId: Number(productId),
-    name: product.name,
-    price: product.price,
-    imageUrl: product.imageUrl,
-    quantity: qty
-  });
-
-  res.json({ cart });
-});
-
-app.put('/cart/:id', (req, res) => {
-  const productId = Number(req.params.id);
-  const qty = Number(req.body?.quantity);
-
-  const item = cart.find(i => i.productId === productId);
-  if (!item) return res.status(404).json({ error: 'Cart item not found' });
-  if (!Number.isFinite(qty) || qty < 0) return res.status(400).json({ error: 'Invalid quantity' });
-
-  if (qty === 0) {
-    cart = cart.filter(i => i.productId !== productId);
-    return res.json({ cart });
-  }
-
-  item.quantity = qty;
-  res.json({ cart });
-});
-
-app.delete('/cart/:id', (req, res) => {
-  const productId = Number(req.params.id);
-  cart = cart.filter(i => i.productId !== productId);
-  res.json({ cart });
-});
 
 // =====================
 // Modular API — routes → controllers → services → repositories → Supabase

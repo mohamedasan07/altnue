@@ -67,7 +67,7 @@ warning, skips verification). Add them and restart to see them connect.
 
 ```
 backend/
-├── server.js              # Entry — CORS, static site, cart, mounts /api
+├── server.js              # Entry — security headers (Helmet), CORS, mounts /api
 ├── config/
 │   ├── env.js             # Raw environment loading (dotenv)
 │   └── index.js           # Centralized typed config object
@@ -136,9 +136,11 @@ Responses keep the shape the frontends expect:
 - `POST/PUT` → `{ ok, product }`
 - `DELETE` → `{ ok }`
 
-### Cart (in-memory, legacy customer-site sync)
+### Cart
 
-`GET /cart`, `POST /cart`, `PUT /cart/:id`, `DELETE /cart/:id`
+The customer/guest cart is served by the modern DB-backed stack under
+`/api/customer/cart` (see `routes/cart.routes.js`). The old in-memory `/cart`
+endpoints of the legacy single-page site were removed in Sprint 22.6 Phase 2.
 
 ### Health
 
