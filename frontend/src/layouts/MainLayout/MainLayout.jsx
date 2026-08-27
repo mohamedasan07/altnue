@@ -9,7 +9,7 @@ import styles from './MainLayout.module.css';
 export default function MainLayout() {
   return (
     <div className={styles.layout}>
-      <a href="#main-content" className={styles.skipLink}>
+      <a href="#main-content" className={`${styles.skipLink} sr-only focus:not-sr-only`}>
         Skip to content
       </a>
 

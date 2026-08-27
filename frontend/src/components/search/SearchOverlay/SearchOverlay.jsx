@@ -193,7 +193,7 @@ export default function SearchOverlay({ open, onClose, triggerRef }) {
             onKeyDown={handlePanelKeyDown}
           >
             <header className={styles.head}>
-              <p className={styles.kicker}>UNSORTED</p>
+              <p className={styles.kicker}>ALTNUE</p>
               <button type="button" className={styles.close} onClick={close} aria-label="Close search">
                 ✕
               </button>

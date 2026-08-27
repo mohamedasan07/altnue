@@ -85,7 +85,7 @@ export default function DashboardLayout() {
                   transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <div className={styles.drawerTop}>
-                    <p className={styles.drawerKicker}>UNSORTED</p>
+                    <p className={styles.drawerKicker}>ALTNUE</p>
                     <button
                       type="button"
                       className={styles.drawerClose}

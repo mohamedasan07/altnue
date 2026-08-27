@@ -37,6 +37,7 @@
   justify-content: space-between;
   gap: var(--space-4);
   height: 100%;
+  max-width: 96rem; /* Expanded to allow action icons to move further right on large screens */
 }
 
 /* ---------------- Logo ---------------- */
@@ -121,6 +122,10 @@
 }
 
 /* ---------------- Right actions ---------------- */
+.desktopActions {
+  display: none; /* Hide Search/Wishlist/Cart/Account on mobile */
+}
+
 .navActions {
   display: flex;
   align-items: center;
@@ -375,7 +380,18 @@
 
 @media (min-width: 1024px) {
   .desktopNav {
-    display: block;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    padding-right: var(--space-16); /* Push nav away from actions to maintain balance */
+  }
+
+  .desktopActions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    /* Shift explicitly to the right edge */
+    margin-left: auto;
   }
 
   .hamburger {

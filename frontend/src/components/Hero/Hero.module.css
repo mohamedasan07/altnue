@@ -1,23 +1,19 @@
 /* =========================================================
-   UNSORTED — Hero (Hero.module.css)
+   ALTNUE — Hero (Hero.module.css)
    Full-viewport, mobile-first, premium editorial styling.
    ========================================================= */
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap");
 
 .hero {
   position: relative;
-  flex: 1;
-  display: grid;
-  align-items: center;
-  min-height: calc(100svh - var(--header-height));
-  padding-block: var(--space-12) var(--space-20);
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  margin-top: calc(var(--header-height) * -1);
+  padding-top: var(--header-height);
   overflow: hidden;
   isolation: isolate;
-
-  /* Editorial lighting: soft accent bloom + faint top-light + base */
-  background:
-    radial-gradient(110% 85% at 88% 6%, var(--color-accent-ghost) 0%, transparent 55%),
-    radial-gradient(70% 55% at 8% 96%, rgba(255, 255, 255, 0.05) 0%, transparent 60%),
-    var(--color-bg);
+  background: #000000;
 }
 
 /* Subtle film grain overlay (pure SVG noise, very low opacity) */
@@ -32,23 +28,86 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
 }
 
-.grid {
-  position: relative;
+/* ---------------- Ambient Originkit Background Layers ---------------- */
+.ambientLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.starburst {
+  z-index: 0;
+}
+.diagonalLines {
   z-index: 1;
-  display: grid;
-  gap: var(--space-12);
-  width: 100%;
-  max-width: var(--container-max-wide);
+  background-image: url('/originkit/hero-12/diagonal-line.png');
+  background-size: 402px 874px;
+  background-position: top;
+  background-repeat: repeat;
+  mix-blend-mode: overlay;
+}
+.bottomGlowWrap {
+  z-index: 2;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 250px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+.glowImg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   margin-inline: auto;
-  padding-inline: var(--container-pad);
+  height: 210px;
+  width: 100%;
+  object-fit: cover;
+  object-position: bottom;
+  mask-image: radial-gradient(90% 100% at bottom, #000 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(90% 100% at bottom, #000 20%, transparent 75%);
+  opacity: 0.15; /* Substantially reduce floor platform glow to a very low-intensity diffuse glow */
+}
+.starDustWrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+  overflow: hidden;
+  opacity: 0.5;
+  mask-image: radial-gradient(90% 100% at bottom, #000 40%, transparent 95%);
+  -webkit-mask-image: radial-gradient(90% 100% at bottom, #000 40%, transparent 95%);
 }
 
-/* ---------------- Left: content ---------------- */
+
+
+/* ---------------- Text Content Wrapper ---------------- */
+.contentWrap {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+  padding-bottom: var(--space-20);
+  /* Remove margin-top auto so text doesn't get pushed to the bottom of tall screens */
+  margin-top: 0;
+}
+
 .content {
   display: grid;
   gap: var(--space-5);
   max-width: 42rem;
-  justify-items: start;
+  justify-items: center; /* Center on mobile */
+  text-align: center;    /* Center on mobile */
+  margin-inline: auto;
 }
 
 .eyebrow {
@@ -64,17 +123,21 @@
 }
 
 .eyebrowLine {
+  display: none; /* Hide line on mobile for centered layout */
   width: 2rem;
   height: 1px;
   background: var(--color-accent);
 }
 
 .headline {
-  font-size: clamp(2.9rem, 8vw, 5.75rem);
-  font-weight: var(--weight-black);
-  letter-spacing: var(--tracking-tight);
-  line-height: var(--leading-tight);
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: clamp(2.75rem, 8vw, 5.25rem);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
   color: var(--color-text);
+  padding-right: 0.1em; /* Prevent italic clipping */
 }
 
 .line {
@@ -90,6 +153,7 @@
 
 .accent {
   color: var(--color-accent);
+  font-style: normal; /* Keep the dot non-italic if preferred, or italic */
 }
 
 .subheading {
@@ -101,13 +165,36 @@
 
 .ctaRow {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  width: 100%;
   gap: var(--space-4);
-  margin-top: var(--space-2);
+  margin-top: var(--space-4);
 }
 
 .cta {
-  width: auto;
+  width: 100%;
+  justify-content: center;
+}
+
+/* ---------------- Editorial Metadata ---------------- */
+.metadata {
+  position: absolute;
+  top: 1rem;
+  right: var(--container-pad);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-align: right;
+  z-index: 20;
+}
+
+.metadataDesktop {
+  display: none;
 }
 
 .ctaArrow {
@@ -118,189 +205,77 @@
   transform: translateX(4px);
 }
 
-/* ---------------- Right: abstract composition ---------------- */
-.visualWrap {
-  position: relative;
-  width: 100%;
-  max-width: 30rem;
-  margin-inline: auto;
-  will-change: transform;
-}
-
-.frame {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  width: 100%;
-  overflow: hidden;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: linear-gradient(165deg, var(--color-surface-raised) 0%, var(--color-bg-elevated) 70%);
-  box-shadow: var(--shadow-lg);
-}
-
-.heroImage {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.92;
-}
-
-/* soft bloom inside the frame (editorial light) */
-.glow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(90% 60% at 75% 15%, rgba(255, 255, 255, 0.09) 0%, transparent 60%);
-}
-
-/* oversized outlined glyph */
-.sign {
-  position: absolute;
-  left: 8%;
-  bottom: -4%;
-  font-family: var(--font-black, var(--font-sans));
-  font-weight: var(--weight-black);
-  font-size: clamp(6rem, 16vw, 11rem);
-  line-height: 1;
-  color: transparent;
-  -webkit-text-stroke: 1px var(--color-border-strong);
-  letter-spacing: var(--tracking-tight);
-  user-select: none;
-}
-
-/* floating tile card */
-.tile {
-  position: absolute;
-  top: 12%;
-  right: 10%;
-  width: 52%;
-  height: 34%;
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(150deg, var(--color-surface-raised), var(--color-surface));
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-md);
-  transition: transform var(--dur-slow) var(--ease-out);
-}
-
-.frame:hover .tile {
-  transform: translateY(-0.375rem) rotate(1.5deg);
-}
-
-/* accent square */
-.square {
-  position: absolute;
-  top: 34%;
-  left: 6%;
-  display: grid;
-  place-items: center;
-  width: 3.25rem;
-  height: 3.25rem;
-  border: 1px solid var(--color-accent);
-  transform: rotate(45deg);
-  transition: transform var(--dur-slow) var(--ease-out);
-}
-
-.square i {
-  width: 0.5rem;
-  height: 0.5rem;
-  background: var(--color-accent);
-  border-radius: var(--radius-pill);
-}
-
-.frame:hover .square {
-  transform: rotate(45deg) scale(1.12);
-}
-
-/* soft accent orb */
-.orb {
-  position: absolute;
-  bottom: 14%;
-  left: 24%;
-  width: 6rem;
-  height: 6rem;
-  border-radius: var(--radius-pill);
-  background: var(--color-accent-ghost);
-  filter: blur(28px);
-  pointer-events: none;
-}
-
-/* vertical label */
-.vLabel {
-  position: absolute;
-  right: 8%;
-  bottom: 12%;
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--color-text-faint);
-  writing-mode: vertical-rl;
-  user-select: none;
-}
-
-.cross {
-  position: absolute;
-  top: 6%;
-  left: 12%;
-  font-family: var(--font-mono);
-  font-size: var(--text-lg);
-  color: var(--color-text-faint);
-  user-select: none;
-}
-
 /* ---------------- Scroll indicator ---------------- */
 .scroll {
-  position: absolute;
-  right: var(--container-pad);
-  bottom: var(--space-6);
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.scrollLine {
-  display: block;
-  width: 1px;
-  height: 2.75rem;
-  background: linear-gradient(var(--color-accent), transparent);
-  transform-origin: top;
-}
-
-.scrollLabel {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  display: none;
 }
 
 /* ---------------- Breakpoints ---------------- */
-@media (min-width: 768px) {
-  .hero {
-    padding-block: var(--space-16) var(--space-16);
+@media (min-width: 640px) {
+  .ctaRow {
+    flex-direction: row;
+    width: auto;
   }
+  .cta {
+    width: auto;
+  }
+}
+
+@media (min-width: 768px) {
+  .bottomGlowWrap { height: 150px; }
+
 }
 
 @media (min-width: 1024px) {
-  .grid {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    align-items: center;
-    gap: var(--space-16);
+  .contentWrap {
+    flex: 1;
+    justify-content: center;
+    margin-top: 0;
+    padding-block: 0 !important;
+    margin-inline: 0 !important;
   }
 
-  .visualWrap {
-    max-width: none;
+  .content {
+    justify-items: start; /* Left align on desktop */
+    text-align: left;
+    margin-inline: 0; /* Un-center block */
+  }
+
+  .metadata {
+    display: none; /* Hide mobile metadata */
+  }
+
+  .eyebrowLine {
+    display: block; /* Show line on desktop */
+  }
+
+  .scroll {
+    position: absolute;
+    right: var(--container-pad);
+    bottom: var(--space-6);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
   }
 }
 
-/* Extra large screens — keep the frame from feeling oversized */
+@media (min-width: 1280px) {
+  .bottomGlowWrap { height: 170px; }
+  .glowImg { height: 150px; }
+}
+
+/* As room grows, step the orb back up toward full size while keeping the
+   same ~72.5% anchor — gaps stay proportional and the corona stays clear
+   of the viewport edge. */
+@media (min-width: 1440px) {
+  .visualDesktopScale { --orb-scale: 1; }
+}
+
 @media (min-width: 1536px) {
-  .visualWrap {
-    justify-self: end;
-    max-width: 30rem;
-  }
+  .visualDesktopScale { --orb-scale: 1; }
+}
+
+@media (min-width: 1920px) {
+  .visualDesktopScale { --orb-scale: 1; }
 }

@@ -169,7 +169,7 @@ function LoginPage() {
           </p>
         </div>
 
-        <footer className={styles.footer}>© {new Date().getFullYear()} UNSORTED. All rights reserved.</footer>
+        <footer className={styles.footer}>© {new Date().getFullYear()} ALTNUE. All rights reserved.</footer>
       </main>
     </div>
   )

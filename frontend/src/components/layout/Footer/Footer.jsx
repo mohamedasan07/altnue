@@ -27,7 +27,7 @@ export default function Footer() {
     <footer className={styles.footer}>
       <Container className={styles.inner}>
         <div className={styles.brandBlock}>
-          <p className={styles.brand}>UNSORTED<span className={styles.dot}>.</span></p>
+          <p className={styles.brand}>ALTNUE<span className={styles.dot}>.</span></p>
           <p className={styles.tagline}>For the Unfiltered.</p>
         </div>
 
@@ -51,7 +51,7 @@ export default function Footer() {
 
       <div className={styles.bottomBar}>
         <Container className={styles.bottomInner}>
-          <p className={styles.copy}>© {new Date().getFullYear()} UNSORTED. All rights reserved.</p>
+          <p className={styles.copy}>© {new Date().getFullYear()} ALTNUE. All rights reserved.</p>
         </Container>
       </div>
     </footer>

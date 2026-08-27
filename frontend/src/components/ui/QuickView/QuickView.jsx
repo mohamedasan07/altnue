@@ -108,7 +108,7 @@ export default function QuickView({ product, open, onClose, rating, isNew, onWis
               </div>
 
               <div className={styles.info}>
-                <p className={styles.cat}>{product?.category || 'UNSORTED'}</p>
+                <p className={styles.cat}>{product?.category || 'ALTNUE'}</p>
                 <h3 className={styles.name}>{name}</h3>
                 <div className={styles.rating}>
                   <Rating value={rating?.value || 0} count={rating?.count || 0} />

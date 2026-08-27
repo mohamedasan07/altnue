@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useTheme } from '../../hooks/useTheme';
 import { cn } from '../../utils/cn';
 import Container from '../ui/Container/Container';
 import Logo from './Logo';
@@ -20,7 +19,6 @@ import styles from './Navbar.module.css';
  * - Reveals on mount; mobile menu is a full-screen overlay.
  */
 export default function Navbar() {
-  const { theme, toggleTheme } = useTheme();
   const { pathname } = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -60,20 +58,12 @@ export default function Navbar() {
         </nav>
 
         <div className={styles.navActions}>
-          <button
-            type="button"
-            className={styles.iconBtn}
-            onClick={toggleTheme}
-            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-            title={theme === 'dark' ? 'Light theme' : 'Dark theme'}
-          >
-            {theme === 'dark' ? '●' : '○'}
-          </button>
-
-          <SearchButton />
-          <WishlistBadge />
-          <CartButton />
-          <ProfileButton />
+          <div className={styles.desktopActions}>
+            <SearchButton />
+            <WishlistBadge />
+            <CartButton />
+            <ProfileButton />
+          </div>
 
           <Hamburger open={menuOpen} onClick={() => setMenuOpen((v) => !v)} />
         </div>

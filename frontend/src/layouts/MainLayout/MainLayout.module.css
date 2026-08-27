@@ -12,11 +12,29 @@
 }
 
 .skipLink {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.skipLink:focus {
   position: fixed;
   top: var(--space-4);
   left: var(--space-4);
   z-index: var(--z-toast);
+  width: auto;
+  height: auto;
   padding: var(--space-2) var(--space-4);
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
   background: var(--color-accent);
   color: #0a0a0a;
   font-weight: var(--weight-bold);
@@ -24,10 +42,5 @@
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   border-radius: var(--radius-sm);
-  transform: translateY(-200%);
-  transition: transform var(--dur-fast) var(--ease-out);
-}
-
-.skipLink:focus {
-  transform: translateY(0);
+  outline: none;
 }

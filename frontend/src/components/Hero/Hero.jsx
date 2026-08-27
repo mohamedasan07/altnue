@@ -9,6 +9,8 @@ import {
 import Button from '../ui/Button/Button';
 import { EASE_OUT, fadeUp, lineMask, scaleFadeIn, stagger } from '../../utils/motion';
 import styles from './Hero.module.css';
+import { HeroVisual, useHeroVisualLayout } from '@/components/originkit/ui/hero-12/hero-visual';
+import StarBurst from '@/components/originkit/ui/hero-12/starburst';
 
 const ARROW_RIGHT = (
   <svg
@@ -29,12 +31,11 @@ const ARROW_RIGHT = (
 );
 
 export default function Hero({
-  eyebrow = 'UNSORTED',
+  eyebrow = 'ALTNUE',
   description =
-    "Premium streetwear designed for those who don't follow trends—they create them.",
-  primaryCta = { label: 'Shop Collection', to: '/collections' },
-  secondaryCta = { label: 'Explore Lookbook', to: '/collections' },
-  imageUrl = '',
+    "Contemporary streetwear for those who move differently. Bold pieces, effortless fits, and a style that stands apart.",
+  primaryCta = { label: 'SHOP COLLECTION', to: '/collections' },
+  secondaryCta = { label: 'EXPLORE ALTNUE', to: '/collections' },
 }) {
   const prefersReduced = useReducedMotion();
   const heroRef = useRef(null);
@@ -64,86 +65,88 @@ export default function Hero({
       onPointerMove={handlePointerMove}
       aria-labelledby="hero-headline"
     >
-      <motion.div
-        className={styles.grid}
-        variants={stagger(0.15, 0.12)}
-        initial={prefersReduced ? false : 'hidden'}
-        animate="visible"
-      >
-        {/* ---- Left: brand statement ---- */}
-        <div className={styles.content}>
-          <motion.p variants={fadeUp} className={styles.eyebrow}>
-            <span className={styles.eyebrowLine} aria-hidden="true" />
-            {eyebrow}
-          </motion.p>
+      {/* ---------------- Originkit Ambient Background Layers ---------------- */}
+      <div aria-hidden="true" className={styles.ambientLayer}>
+        <div className="w-full h-full lg:translate-x-[16%]">
+          <StarBurst 
+            speed={7}
+            starCount={140}
+            color="#E8D4FF"
+            centerX={50}
+            centerY={0}
+            starSize={18}
+            opacity={28}
+            flowerIntensity={2}
+            twinkleSpeed={3}
+          />
+        </div>
+        <div
+          className={`${styles.ambientLayer} ${styles.diagonalLines}`}
+          style={{
+            maskImage: "linear-gradient(to bottom, #000 0%, transparent 60%)",
+            WebkitMaskImage: "linear-gradient(to bottom, #000 0%, transparent 60%)",
+          }}
+        />
+      </div>
 
-          <h1 id="hero-headline" className={styles.headline}>
-            <span className={styles.line}>
-              <motion.span variants={lineMask} className={styles.lineText}>
-                FOR&nbsp;THE
-              </motion.span>
-            </span>
-            <span className={styles.line}>
-              <motion.span variants={lineMask} className={styles.lineText}>
-                UNFILTERED<span className={styles.accent}>.</span>
-              </motion.span>
-            </span>
-          </h1>
 
-          <motion.p variants={fadeUp} className={styles.subheading}>
-            {description}
-          </motion.p>
+      {/* ---------------- 2-Column Responsive Layout ---------------- */}
+      
+      <div className="flex min-h-0 flex-1 w-full flex-col px-4 pb-10 pt-20 lg:flex-row lg:items-center lg:px-12 lg:pt-0 max-w-[1440px] mx-auto z-10 relative">
+        {/* Desktop: Left Column / Mobile: Bottom Layer */}
+        <div className="order-2 flex w-full flex-col items-center lg:order-1 lg:w-1/2 lg:items-start lg:justify-center z-10">
+          <div className={styles.contentWrap}>
+            <motion.div
+              className={styles.content}
+              variants={stagger(0.15, 0.12)}
+              initial={prefersReduced ? false : 'hidden'}
+              animate="visible"
+            >
+              <motion.p variants={fadeUp} className={styles.eyebrow}>
+                <span className={styles.eyebrowLine} aria-hidden="true" />
+                {eyebrow}
+              </motion.p>
 
-          <motion.div variants={fadeUp} className={styles.ctaRow}>
-            <Button to={primaryCta.to} variant="primary" size="lg" className={styles.cta}>
-              {primaryCta.label}
-              {ARROW_RIGHT}
-            </Button>
-            <Button to={secondaryCta.to} variant="outline" size="lg" className={styles.cta}>
-              {secondaryCta.label}
-              {ARROW_RIGHT}
-            </Button>
-          </motion.div>
+              <h1 id="hero-headline" className={styles.headline}>
+                <span className={styles.line}>
+                  <motion.span variants={lineMask} className={styles.lineText}>
+                    WEAR
+                  </motion.span>
+                </span>
+                <span className={styles.line}>
+                  <motion.span variants={lineMask} className={styles.lineText}>
+                    YOUR&nbsp;ATTITUDE<span className={styles.accent}>.</span>
+                  </motion.span>
+                </span>
+              </h1>
+
+              <motion.p variants={fadeUp} className={styles.subheading}>
+                {description}
+              </motion.p>
+
+              <motion.div variants={fadeUp} className={styles.ctaRow}>
+                <Button to={primaryCta.to} variant="primary" size="lg" className={styles.cta}>
+                  {primaryCta.label}
+                  {ARROW_RIGHT}
+                </Button>
+                <Button to={secondaryCta.to} variant="outline" size="lg" className={styles.cta}>
+                  {secondaryCta.label}
+                  {ARROW_RIGHT}
+                </Button>
+              </motion.div>
+            </motion.div>
+          </div>
         </div>
 
-        {/* ---- Right: stylized abstract composition ---- */}
-        <motion.div
-          variants={scaleFadeIn}
-          className={styles.visualWrap}
-          style={visualStyle}
-        >
-          <div className={styles.frame}>
-            {imageUrl && (
-              <img
-                src={imageUrl}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className={styles.heroImage}
-                aria-hidden="true"
-              />
-            )}
-
-            <div className={styles.glow} aria-hidden="true" />
-            <span className={styles.sign} aria-hidden="true">
-              UN
-            </span>
-            <span className={styles.tile} aria-hidden="true" />
-            <span className={styles.square} aria-hidden="true">
-              <i />
-            </span>
-            <span className={styles.orb} aria-hidden="true" />
-            <span className={styles.vLabel} aria-hidden="true">
-              FOR THE UNFILTERED — EST
-            </span>
-            <span className={styles.cross} aria-hidden="true">
-              +
-            </span>
+        {/* Desktop: Right Column (Absolute) / Mobile: Top Layer (Flow) */}
+        <div className="order-1 flex w-full items-center justify-center lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 lg:justify-end z-5 pointer-events-none">
+          <div className="w-[70vw] max-w-[340px] lg:w-[clamp(460px,35vw,560px)] lg:max-w-none lg:h-full lg:relative">
+            <HeroVisual parallaxStyle={visualStyle} />
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
-      {/* ---- Scroll indicator (decorative) ---- */}
+      {/* ---------------- Scroll indicator ---------------- */}
       <div className={styles.scroll} aria-hidden="true">
         <motion.span
           className={styles.scrollLine}
