@@ -1,7 +1,5 @@
 // Delivered by Originkit · stack: nextjs · styling: tailwind
-"use client";
 
-"use client";
 
 import { motion } from "motion/react";
 import RollingLetters from "@/components/originkit/ui/hero-12/rolling-text";

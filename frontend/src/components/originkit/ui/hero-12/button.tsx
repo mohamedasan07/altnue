@@ -1,5 +1,4 @@
 // Delivered by Originkit · stack: nextjs · styling: tailwind
-"use client";
 
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 

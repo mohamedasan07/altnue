@@ -1,7 +1,5 @@
 // Delivered by Originkit · stack: nextjs · styling: tailwind
-"use client";
 
-"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";

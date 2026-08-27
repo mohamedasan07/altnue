@@ -1,5 +1,4 @@
 // Delivered by Originkit · stack: nextjs · styling: tailwind
-"use client";
 
 import { useEffect, useRef, useState } from "react";
 import PixelCard from "@/components/originkit/ui/hero-12/pixel-card";
@@ -148,7 +147,9 @@ const getLayout = (breakpoint: Breakpoint): HeroVisualLayout => {
 
 /** Responsive thunder/circle/mask sizes + stage metrics. */
 export const useHeroVisualLayout = (): HeroVisualLayout => {
-  const [breakpoint, setBreakpoint] = useState<Breakpoint>("mobile");
+  const [breakpoint, setBreakpoint] = useState<Breakpoint>(() =>
+    typeof window !== 'undefined' ? getBreakpoint(window.innerWidth) : 'mobile'
+  );
 
   useEffect(() => {
     const update = () => {

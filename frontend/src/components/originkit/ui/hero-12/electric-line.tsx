@@ -1,7 +1,5 @@
 // Delivered by Originkit · stack: nextjs · styling: tailwind
-"use client";
 
-"use client";
 
 import { useEffect, useId, useRef } from "react";
 

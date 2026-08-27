@@ -1,7 +1,5 @@
 // Delivered by Originkit · stack: nextjs · styling: tailwind
-"use client";
 
-"use client";
 
 import type { KeyboardEvent } from "react";
 import { Button } from "@/components/originkit/ui/hero-12/button";

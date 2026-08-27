@@ -7,9 +7,9 @@ import {
   useTransform,
 } from 'framer-motion';
 import Button from '../ui/Button/Button';
-import { EASE_OUT, fadeUp, lineMask, scaleFadeIn, stagger } from '../../utils/motion';
+import { fadeUp, lineMask, stagger } from '../../utils/motion';
 import styles from './Hero.module.css';
-import { HeroVisual, useHeroVisualLayout } from '@/components/originkit/ui/hero-12/hero-visual';
+import { HeroVisual } from '@/components/originkit/ui/hero-12/hero-visual';
 import StarBurst from '@/components/originkit/ui/hero-12/starburst';
 
 const ARROW_RIGHT = (

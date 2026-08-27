@@ -45,47 +45,6 @@
   background-repeat: repeat;
   mix-blend-mode: overlay;
 }
-.bottomGlowWrap {
-  z-index: 2;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 250px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  overflow: hidden;
-  pointer-events: none;
-}
-.glowImg {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin-inline: auto;
-  height: 210px;
-  width: 100%;
-  object-fit: cover;
-  object-position: bottom;
-  mask-image: radial-gradient(90% 100% at bottom, #000 20%, transparent 75%);
-  -webkit-mask-image: radial-gradient(90% 100% at bottom, #000 20%, transparent 75%);
-  opacity: 0.15; /* Substantially reduce floor platform glow to a very low-intensity diffuse glow */
-}
-.starDustWrap {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 80px;
-  overflow: hidden;
-  opacity: 0.5;
-  mask-image: radial-gradient(90% 100% at bottom, #000 40%, transparent 95%);
-  -webkit-mask-image: radial-gradient(90% 100% at bottom, #000 40%, transparent 95%);
-}
-
-
 
 /* ---------------- Text Content Wrapper ---------------- */
 .contentWrap {
@@ -221,10 +180,7 @@
   }
 }
 
-@media (min-width: 768px) {
-  .bottomGlowWrap { height: 150px; }
 
-}
 
 @media (min-width: 1024px) {
   .contentWrap {
@@ -260,10 +216,6 @@
   }
 }
 
-@media (min-width: 1280px) {
-  .bottomGlowWrap { height: 170px; }
-  .glowImg { height: 150px; }
-}
 
 /* As room grows, step the orb back up toward full size while keeping the
    same ~72.5% anchor — gaps stay proportional and the corona stays clear
