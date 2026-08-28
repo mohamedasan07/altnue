@@ -13,8 +13,8 @@ import SearchSuggestions from '../SearchSuggestions/SearchSuggestions';
 import RecentSearches from '../RecentSearches/RecentSearches';
 import styles from './SearchOverlay.module.css';
 
-const PANEL_ID = 'unsorted-search';
-const LISTBOX_ID = 'unsorted-search-results';
+const PANEL_ID = 'altnue-search';
+const LISTBOX_ID = 'altnue-search-results';
 
 /**
  * Full-screen live search overlay.
@@ -173,7 +173,7 @@ export default function SearchOverlay({ open, onClose, triggerRef }) {
           className={styles.overlay}
           role="dialog"
           aria-modal="true"
-          aria-label="Search UNSORTED"
+          aria-label="Search ALTNUE"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -201,7 +201,7 @@ export default function SearchOverlay({ open, onClose, triggerRef }) {
 
             <SearchInput
               ref={inputRef}
-              id="unsorted-search-input"
+              id="altnue-search-input"
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);

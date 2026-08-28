@@ -47,7 +47,7 @@ function buildAccordion(product) {
       content: (
         <p>
           {product.description ||
-            'A UNSORTED piece. Cut for the unfiltered — clean lines, real weight.'}
+            'A ALTNUE piece. Cut for the unfiltered — clean lines, real weight.'}
         </p>
       ),
     },
@@ -241,7 +241,7 @@ export default function ProductPage() {
 
             <motion.p variants={fadeUp} className={styles.desc}>
               {product.description ||
-                'A UNSORTED piece. Clean lines, real weight, zero noise.'}
+                'A ALTNUE piece. Clean lines, real weight, zero noise.'}
             </motion.p>
 
             <motion.div variants={fadeUp} className={styles.choosers}>

@@ -19,7 +19,7 @@ export const DASHBOARD_SECTIONS = [
 export default function DashboardSidebar({ open = false, onNavigate }) {
   return (
     <aside
-      id="unsorted-dashboard-sidebar"
+      id="altnue-dashboard-sidebar"
       className={styles.sidebar}
       aria-label="Account navigation"
       aria-hidden={open ? undefined : true}

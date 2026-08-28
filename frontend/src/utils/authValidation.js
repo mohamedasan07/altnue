@@ -1,4 +1,4 @@
-// UNSORTED — auth form validation helpers.
+// ALTNUE — auth form validation helpers.
 // Pure functions that return a field-keyed errors map. Empty object = valid.
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

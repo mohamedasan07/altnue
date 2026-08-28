@@ -94,10 +94,10 @@
   aspect-ratio: 4 / 5;
   border-radius: var(--radius-md);
   background: var(--color-surface-raised);
-  animation: unsorted-pulse 1.4s ease-in-out infinite;
+  animation: altnue-pulse 1.4s ease-in-out infinite;
 }
 
-@keyframes unsorted-pulse {
+@keyframes altnue-pulse {
   0%,
   100% {
     opacity: 1;

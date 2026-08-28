@@ -1,4 +1,4 @@
-/* UNSORTED global stylesheet entry — order matters:
+/* ALTNUE global stylesheet entry — order matters:
    reset → tokens → base */
 
 @import './reset.css';

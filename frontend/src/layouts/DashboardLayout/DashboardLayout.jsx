@@ -78,7 +78,7 @@ export default function DashboardLayout() {
                   className={styles.drawer}
                   role="dialog"
                   aria-modal="true"
-                  aria-labelledby="unsorted-dashboard-sidebar"
+                  aria-labelledby="altnue-dashboard-sidebar"
                   initial={{ x: '-100%' }}
                   animate={{ x: 0 }}
                   exit={{ x: '-100%' }}

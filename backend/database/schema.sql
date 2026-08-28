@@ -1,5 +1,5 @@
 -- ============================================================================
--- UNSORTED — Production database schema
+-- ALTNUE — Production database schema
 -- PostgreSQL 15+ (Supabase)
 --
 -- Apply via the Supabase SQL Editor, or from the CLI:

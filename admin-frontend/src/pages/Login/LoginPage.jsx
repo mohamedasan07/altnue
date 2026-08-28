@@ -59,7 +59,7 @@ function LoginPage() {
               from one place.
             </h1>
             <p className={styles.heroSubtitle}>
-              The UNSORTED admin gives you a real-time view of everything that
+              The ALTNUE admin gives you a real-time view of everything that
               keeps your business moving.
             </p>
           </div>

@@ -1,9 +1,9 @@
 {
-  "name": "unsorted-frontend",
+  "name": "altnue-frontend",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "UNSORTED — For the Unfiltered. Premium streetwear storefront (React + Vite).",
+  "description": "ALTNUE — For the Unfiltered. Premium streetwear storefront (React + Vite).",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

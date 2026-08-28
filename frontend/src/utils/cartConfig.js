@@ -1,4 +1,4 @@
-// UNSORTED — Cart business rules & pricing helpers.
+// ALTNUE — Cart business rules & pricing helpers.
 // Single source of truth for shipping thresholds, tax, and totals so the
 // drawer, cart page, and badges always agree.
 

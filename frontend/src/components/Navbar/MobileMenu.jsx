@@ -6,7 +6,7 @@ import styles from './Navbar.module.css';
 
 const SOCIALS = [
   {
-    label: 'UNSORTED on Instagram',
+    label: 'ALTNUE on Instagram',
     href: 'https://instagram.com',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -18,7 +18,7 @@ const SOCIALS = [
     ),
   },
   {
-    label: 'UNSORTED on X',
+    label: 'ALTNUE on X',
     href: 'https://x.com',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -29,7 +29,7 @@ const SOCIALS = [
     ),
   },
   {
-    label: 'UNSORTED on YouTube',
+    label: 'ALTNUE on YouTube',
     href: 'https://youtube.com',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -70,7 +70,7 @@ export default function MobileMenu({ open, onClose }) {
     <AnimatePresence>
       {open && (
         <motion.div
-          id="unsorted-mobile-menu"
+          id="altnue-mobile-menu"
           className={styles.mobileMenu}
           role="dialog"
           aria-modal="true"

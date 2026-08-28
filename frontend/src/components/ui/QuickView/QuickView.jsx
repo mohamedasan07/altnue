@@ -124,7 +124,7 @@ export default function QuickView({ product, open, onClose, rating, isNew, onWis
                 </div>
 
                 <p className={styles.desc}>
-                  {product?.description || 'A UNSORTED piece. For the unfiltered.'}
+                  {product?.description || 'A ALTNUE piece. For the unfiltered.'}
                 </p>
 
                 <p className={styles.stock}>

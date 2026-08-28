@@ -1,4 +1,4 @@
-// UNSORTED — shared shipping-address validation.
+// ALTNUE — shared shipping-address validation.
 // Single source of truth for address rules used by the address book
 // (AddressModal) AND the checkout shipping form (useCheckout), so the two can
 // never drift. The backend mirrors these rules in
