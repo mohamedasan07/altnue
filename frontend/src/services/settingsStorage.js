@@ -2,7 +2,8 @@
 // Covers notification + privacy switches. Theme persists separately via the
 // existing ThemeContext (unsorted_theme).
 
-const STORAGE_KEY = 'unsorted_settings_v1';
+const LEGACY_STORAGE_KEY = 'unsorted_settings_v1';
+const STORAGE_KEY = 'altnue_settings_v1';
 
 const DEFAULTS = {
   notifications: {
@@ -31,21 +32,33 @@ function mergeDeep(base, stored) {
 export function loadSettings() {
   let stored = null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    let raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (raw) {
+        localStorage.setItem(STORAGE_KEY, raw);
+      }
+    }
     if (raw) stored = JSON.parse(raw);
   } catch {
     stored = null;
   }
 
   const settings = mergeDeep(DEFAULTS, stored);
-  if (!stored) try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch { /* noop */ }
+  if (!stored) try {
+    const serialized = JSON.stringify(settings);
+    localStorage.setItem(STORAGE_KEY, serialized);
+    localStorage.setItem(LEGACY_STORAGE_KEY, serialized);
+  } catch { /* noop */ }
   return settings;
 }
 
 /** Persist settings (swallows storage failures). */
 export function saveSettings(settings) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...settings, updatedAt: new Date().toISOString() }));
+    const serialized = JSON.stringify({ ...settings, updatedAt: new Date().toISOString() });
+    localStorage.setItem(STORAGE_KEY, serialized);
+    localStorage.setItem(LEGACY_STORAGE_KEY, serialized);
   } catch {
     /* storage unavailable */
   }
@@ -54,6 +67,7 @@ export function saveSettings(settings) {
 export function clearStoredSettings() {
   try {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch {
     /* noop */
   }

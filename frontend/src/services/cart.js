@@ -12,7 +12,8 @@
 
 import { request } from './api';
 
-const SESSION_KEY = 'unsorted_cart_session_v1';
+const LEGACY_SESSION_KEY = 'unsorted_cart_session_v1';
+const SESSION_KEY = 'altnue_cart_session_v1';
 
 /** RFC-4122 v4 UUID with a safe fallback for non-secure contexts. */
 function newId() {
@@ -30,7 +31,15 @@ function newId() {
 /** Read the stored guest session id. Returns null when none exists. */
 export function getStoredGuestSessionId() {
   try {
-    return localStorage.getItem(SESSION_KEY);
+    let id = localStorage.getItem(SESSION_KEY);
+    if (id) return id;
+
+    id = localStorage.getItem(LEGACY_SESSION_KEY);
+    if (id) {
+      localStorage.setItem(SESSION_KEY, id);
+      return id;
+    }
+    return null;
   } catch {
     return null;
   }
@@ -46,6 +55,7 @@ export function ensureGuestSessionId() {
   const id = newId();
   try {
     localStorage.setItem(SESSION_KEY, id);
+    localStorage.setItem(LEGACY_SESSION_KEY, id);
   } catch {
     /* storage unavailable — session runs in memory only */
   }
@@ -56,6 +66,7 @@ export function ensureGuestSessionId() {
 export function clearGuestSessionId() {
   try {
     localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(LEGACY_SESSION_KEY);
   } catch {
     /* noop */
   }

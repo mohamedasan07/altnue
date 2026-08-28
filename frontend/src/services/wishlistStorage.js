@@ -1,6 +1,7 @@
 // WishlistStorage — localStorage persistence for saved products.
 
-const STORAGE_KEY = 'unsorted_wishlist_v1';
+const LEGACY_STORAGE_KEY = 'unsorted_wishlist_v1';
+const STORAGE_KEY = 'altnue_wishlist_v1';
 
 function isValid(saved) {
   return (
@@ -15,7 +16,13 @@ function isValid(saved) {
 /** Read persisted wishlist. Never throws — returns [] on any fault. */
 export function loadWishlist() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    let raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (raw) {
+        localStorage.setItem(STORAGE_KEY, raw);
+      }
+    }
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -28,7 +35,9 @@ export function loadWishlist() {
 /** Persist the current wishlist. Swallows storage failures. */
 export function saveWishlist(items) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    const serialized = JSON.stringify(items);
+    localStorage.setItem(STORAGE_KEY, serialized);
+    localStorage.setItem(LEGACY_STORAGE_KEY, serialized);
   } catch {
     /* storage unavailable — wishlist runs in memory only */
   }
@@ -37,6 +46,7 @@ export function saveWishlist(items) {
 export function clearStoredWishlist() {
   try {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch {
     /* noop */
   }

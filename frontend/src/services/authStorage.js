@@ -3,13 +3,23 @@
 // refreshes. The token is read by services/api.js to attach the Bearer header
 // on every API request; a 401 there clears storage centrally.
 
-const TOKEN_KEY = 'unsorted_customer_token';
-const USER_KEY = 'unsorted_customer_user';
+const LEGACY_TOKEN_KEY = 'unsorted_customer_token';
+const LEGACY_USER_KEY = 'unsorted_customer_user';
+const TOKEN_KEY = 'altnue_customer_token';
+const USER_KEY = 'altnue_customer_user';
 
 /** Read the stored customer JWT. Never throws — null on any fault. */
 export function getStoredToken() {
   try {
-    return localStorage.getItem(TOKEN_KEY) || null;
+    let token = localStorage.getItem(TOKEN_KEY);
+    if (token) return token;
+
+    token = localStorage.getItem(LEGACY_TOKEN_KEY);
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+      return token;
+    }
+    return null;
   } catch {
     return null;
   }
@@ -18,8 +28,15 @@ export function getStoredToken() {
 /** Read the cached customer profile. Never throws — null on any fault. */
 export function getStoredUser() {
   try {
-    const raw = localStorage.getItem(USER_KEY);
-    return raw ? JSON.parse(raw) : null;
+    let raw = localStorage.getItem(USER_KEY);
+    if (raw) return JSON.parse(raw);
+
+    raw = localStorage.getItem(LEGACY_USER_KEY);
+    if (raw) {
+      localStorage.setItem(USER_KEY, raw);
+      return JSON.parse(raw);
+    }
+    return null;
   } catch {
     return null;
   }
@@ -28,8 +45,15 @@ export function getStoredUser() {
 /** Persist the token + profile (swallows storage failures). */
 export function setAuthStorage(token, user) {
   try {
-    if (token) localStorage.setItem(TOKEN_KEY, token);
-    if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(LEGACY_TOKEN_KEY, token);
+    }
+    if (user) {
+      const serialized = JSON.stringify(user);
+      localStorage.setItem(USER_KEY, serialized);
+      localStorage.setItem(LEGACY_USER_KEY, serialized);
+    }
   } catch {
     /* storage unavailable — session runs in memory only */
   }
@@ -40,6 +64,8 @@ export function clearAuthStorage() {
   try {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(LEGACY_TOKEN_KEY);
+    localStorage.removeItem(LEGACY_USER_KEY);
   } catch {
     /* noop */
   }

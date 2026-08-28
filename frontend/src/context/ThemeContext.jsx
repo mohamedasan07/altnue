@@ -1,14 +1,21 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-const STORAGE_KEY = 'unsorted_theme';
+const LEGACY_STORAGE_KEY = 'unsorted_theme';
+const STORAGE_KEY = 'altnue_theme';
 const DEFAULT_THEME = 'dark';
 
 const ThemeContext = createContext({ theme: DEFAULT_THEME, toggleTheme: () => {} });
 
 function getInitialTheme() {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    let stored = localStorage.getItem(STORAGE_KEY);
     if (stored === 'light' || stored === 'dark') return stored;
+
+    stored = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (stored === 'light' || stored === 'dark') {
+      localStorage.setItem(STORAGE_KEY, stored);
+      return stored;
+    }
   } catch {
     /* storage unavailable */
   }
@@ -22,6 +29,7 @@ export function ThemeProvider({ children }) {
     document.documentElement.setAttribute('data-theme', theme);
     try {
       localStorage.setItem(STORAGE_KEY, theme);
+      localStorage.setItem(LEGACY_STORAGE_KEY, theme);
     } catch {
       /* storage unavailable */
     }
