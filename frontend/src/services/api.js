@@ -5,7 +5,7 @@
 
 import { clearAuthStorage, getStoredToken } from './authStorage';
 
-const REMOTE_BASE = 'https://unsorted-backend.onrender.com';
+const REMOTE_BASE = 'https://altnue-backend.onrender.com';
 
 const isDev =
   typeof window !== 'undefined' &&
