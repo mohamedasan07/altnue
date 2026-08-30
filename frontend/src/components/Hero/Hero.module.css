@@ -2,7 +2,6 @@
    ALTNUE — Hero (Hero.module.css)
    Full-viewport, mobile-first, premium editorial styling.
    ========================================================= */
-@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap");
 
 .hero {
   position: relative;
@@ -89,9 +88,9 @@
 }
 
 .headline {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: clamp(2.75rem, 8vw, 5.25rem);
-  font-weight: 400;
+  font-weight: var(--weight-medium);
   font-style: italic;
   letter-spacing: -0.02em;
   line-height: 1.05;

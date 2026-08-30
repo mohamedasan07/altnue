@@ -6,10 +6,10 @@
 
 .head {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-6);
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   margin-bottom: var(--space-10);
 }
 
@@ -35,62 +35,34 @@
   color: var(--color-accent);
 }
 
-.controls {
-  display: flex;
-  gap: var(--space-2);
-}
-
-.control {
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-pill);
-  color: var(--color-text);
-  font-size: var(--text-lg);
-  line-height: 1;
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out);
-}
-
-.control:hover {
-  color: #0a0a0a;
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  transform: translateY(-1px);
-}
-
 /* ---------------- Carousel ---------------- */
 .rail {
   position: relative;
+  overflow: hidden;
+  padding-inline: var(--space-2);
 }
 
 .track {
   display: flex;
   gap: var(--space-4);
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  padding: var(--space-2) var(--container-pad) var(--space-6);
-  scroll-padding-inline: var(--container-pad);
+  padding-block: var(--space-2) var(--space-6);
+  width: max-content;
+  will-change: transform;
+  cursor: grab;
+  touch-action: pan-y;
 }
 
-.track::-webkit-scrollbar {
-  display: none;
+.track:active {
+  cursor: grabbing;
 }
 
-.item {
-  flex: 0 0 74%;
-  scroll-snap-align: start;
+.item,
+.skeleton {
+  flex: 0 0 auto;
+  width: 74vw;
 }
 
 .skeleton {
-  flex: 0 0 74%;
   aspect-ratio: 4 / 5;
   border-radius: var(--radius-md);
   background: var(--color-surface-raised);
@@ -110,14 +82,14 @@
 @media (min-width: 640px) {
   .item,
   .skeleton {
-    flex-basis: 42%;
+    width: 42vw;
   }
 }
 
 @media (min-width: 1024px) {
   .item,
   .skeleton {
-    flex-basis: 30%;
+    width: 22vw;
   }
 }
 

@@ -1,43 +1,28 @@
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Container from '../ui/Container/Container';
-import { fadeUp, stagger } from '../../utils/motion';
+import ProductCard from '../ProductCard/ProductCard';
+import { fadeUp, stagger, EASE_OUT } from '../../utils/motion';
 import styles from './ShopByCategory.module.css';
 
-const CATEGORIES = [
-  {
-    name: 'Jerseys',
-    slug: 'jerseys',
-    image: 'https://res.cloudinary.com/jtfzpgol/image/upload/v1786373936/unsorted/products/acmilan.jpg',
-    span: 'wide',
-  },
-  {
-    name: 'T-Shirts',
-    slug: 'tshirts',
-    image: 'https://res.cloudinary.com/jtfzpgol/image/upload/v1786373905/unsorted/products/tshirt_1.jpg',
-    span: 'wide',
-  },
-  {
-    name: 'Shirts',
-    slug: 'shirts',
-    image: 'https://res.cloudinary.com/jtfzpgol/image/upload/v1786376390/unsorted/products/shirt_1.jpg',
-    span: 'tall',
-  },
-  {
-    name: 'Baggy',
-    slug: 'baggy',
-    image: 'https://res.cloudinary.com/jtfzpgol/image/upload/v1786376372/unsorted/products/baggy_1.jpg',
-    span: 'tall',
-  },
-  {
-    name: 'Accessories',
-    slug: 'accessories',
-    image: 'https://res.cloudinary.com/jtfzpgol/image/upload/v1786373923/unsorted/products/accessory1_cap.jpg',
-    span: 'wide',
-  },
+const TABS = [
+  { label: 'BESTSELLERS', slug: 'bestsellers' },
+  { label: 'JERSEYS', slug: 'jerseys' },
+  { label: 'TEES', slug: 'tshirts' },
+  { label: 'SHIRT', slug: 'shirts' },
+  { label: 'BAGGY', slug: 'baggy' },
 ];
 
-export default function ShopByCategory() {
+export default function ShopByCategory({ products = [], status = 'loading' }) {
+  const [activeTab, setActiveTab] = useState('bestsellers');
+
+  const filteredProducts = useMemo(() => {
+    if (activeTab === 'bestsellers') {
+      return products.filter((p) => p.sale).slice(0, 4);
+    }
+    return products.filter((p) => p.category === activeTab).slice(0, 4);
+  }, [products, activeTab]);
+
   return (
     <section className={styles.section} aria-labelledby="categories-title">
       <Container>
@@ -54,48 +39,53 @@ export default function ShopByCategory() {
               By category<span className={styles.accent}>.</span>
             </h2>
           </motion.div>
+
+          <motion.div variants={fadeUp} className={styles.tabsWrap}>
+            <div className={styles.tabs}>
+              {TABS.map((tab) => (
+                <button
+                  key={tab.slug}
+                  type="button"
+                  className={`${styles.tab} ${activeTab === tab.slug ? styles.activeTab : ''}`}
+                  onClick={() => setActiveTab(tab.slug)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </motion.div>
         </motion.div>
 
-        <motion.ul
+        <motion.div
           className={styles.grid}
-          variants={stagger(0.08, 0.1)}
+          variants={stagger(0.1, 0.1)}
           initial={false}
           whileInView="visible"
           viewport={{ once: true, amount: 0.15 }}
         >
-          {CATEGORIES.map((category) => (
-            <motion.li
-              key={category.slug}
-              variants={fadeUp}
-              className={`${styles.cell} ${styles[category.span]}`}
-            >
-              <Link
-                to={`/collections?category=${category.slug}`}
-                className={styles.card}
-              >
-                <img
-                  src={category.image}
-                  alt={`${category.name} collection`}
-                  className={styles.image}
-                  loading="lazy"
-                />
-                <span className={styles.overlay} aria-hidden="true" />
-                <span className={styles.label}>
-                  <span className={styles.name}>{category.name}</span>
-                  <span className={styles.explore} aria-hidden="true">
-                    Explore
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
-                      strokeLinejoin="round">
-                      <path d="M4 12h16" />
-                      <path d="M13 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                </span>
-              </Link>
-            </motion.li>
-          ))}
-        </motion.ul>
+          {status === 'loading'
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <div className={styles.skeleton} key={i}>
+                  <span />
+                </div>
+              ))
+            : filteredProducts.map((product, i) => (
+                <motion.div
+                  key={`${activeTab}-${product.id}`}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05, ease: EASE_OUT, duration: 0.4 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+
+          {status !== 'loading' && filteredProducts.length === 0 && (
+            <div className={styles.emptyState}>
+              <p>No products found in this category.</p>
+            </div>
+          )}
+        </motion.div>
       </Container>
     </section>
   );

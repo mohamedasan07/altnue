@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '../../utils/cn';
 import { resolveUrl } from '../../services';
-import { colorNameFor, DEFAULT_SIZE } from '../../utils/cartConfig';
+import { DEFAULT_SIZE } from '../../utils/cartConfig';
 import useProducts from '../../hooks/useProducts';
 import { getProductRating } from '../../utils/productRating';
 import { useCart } from '../../hooks/useCart';
@@ -11,7 +11,7 @@ import { fadeUp } from '../../utils/motion';
 import Loader from '../../components/ui/Loader/Loader';
 import Rating from '../../components/ui/Rating/Rating';
 import ProductGallery from '../../components/product/ProductGallery';
-import ColorSelector from '../../components/product/ColorSelector';
+
 import SizeSelector from '../../components/product/SizeSelector';
 import QuantitySelector from '../../components/product/QuantitySelector';
 import WishlistButton from '../../components/wishlist/WishlistButton/WishlistButton';
@@ -23,12 +23,7 @@ import styles from './ProductPage.module.css';
 
 const inr = (n) => n.toLocaleString('en-IN');
 
-const COLOR_PALETTE = [
-  { value: 'black', name: 'Black', hex: '#141414' },
-  { value: 'white', name: 'Off-White', hex: '#e8e6e1' },
-  { value: 'olive', name: 'Olive', hex: '#5f5c4a' },
-  { value: 'rust', name: 'Rust', hex: '#a04a2f' },
-];
+
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
@@ -107,14 +102,14 @@ export default function ProductPage() {
     [products, productId]
   );
 
-  const [color, setColor] = useState(COLOR_PALETTE[0].value);
+
   const [size, setSize] = useState(null);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
   // Reset per-product chooser state on navigation.
   useEffect(() => {
-    setColor(COLOR_PALETTE[0].value);
+
     setSize(null);
     setQty(1);
     setAdded(false);
@@ -170,8 +165,6 @@ export default function ProductPage() {
     if (outOfStock || added) return;
     addToCart(product, {
       size: size || DEFAULT_SIZE,
-      color,
-      colorName: colorNameFor(color),
       quantity: qty,
     });
     openCart();
@@ -183,8 +176,6 @@ export default function ProductPage() {
     if (outOfStock) return;
     addToCart(product, {
       size: size || DEFAULT_SIZE,
-      color,
-      colorName: colorNameFor(color),
       quantity: qty,
     });
     navigate('/cart');
@@ -245,12 +236,7 @@ export default function ProductPage() {
             </motion.p>
 
             <motion.div variants={fadeUp} className={styles.choosers}>
-              <ColorSelector
-                colors={COLOR_PALETTE}
-                value={color}
-                onChange={setColor}
-                disabled={outOfStock}
-              />
+
               <SizeSelector
                 sizes={SIZES}
                 value={size}

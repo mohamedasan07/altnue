@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../hooks/useAuth';
-import { useTheme } from '../../../hooks/useTheme';
 import { loadSettings, saveSettings } from '../../../services/settingsStorage';
 import AuthField from '../../auth/AuthField/AuthField';
 import DashboardCard from '../DashboardCard/DashboardCard';
@@ -12,7 +11,6 @@ import styles from './SettingsPanel.module.css';
  */
 export default function SettingsPanel() {
   const { user, updateProfile } = useAuth();
-  const { theme, toggleTheme } = useTheme();
 
   const [profile, setProfile] = useState({
     firstName: user?.firstName ?? '',
@@ -135,24 +133,6 @@ export default function SettingsPanel() {
         </div>
       </DashboardCard>
 
-      <DashboardCard kicker="Appearance" title="Theme">
-        <div className={styles.themeRow} role="radiogroup" aria-label="Theme selector">
-          {['dark', 'light'].map((value) => (
-            <button
-              key={value}
-              type="button"
-              role="radio"
-              aria-checked={theme === value}
-              className={theme === value ? styles.themeActive : styles.theme}
-              onClick={() => theme !== value && toggleTheme()}
-            >
-              <span className={styles.themeDot} aria-hidden="true" />
-              {value === 'dark' ? 'Dark' : 'Light'}
-            </button>
-          ))}
-          <span className={styles.themeNote}>Synced with the store-wide theme switcher.</span>
-        </div>
-      </DashboardCard>
 
       <DashboardCard kicker="Privacy" title="Privacy & data">
         <div className={styles.switchList}>
