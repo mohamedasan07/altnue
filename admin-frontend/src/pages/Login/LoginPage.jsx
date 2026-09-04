@@ -5,7 +5,6 @@ import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { useAuth } from '../../hooks/useAuth'
 import styles from './LoginPage.module.css'
-import Logo from '../../components/common/Logo'
 
 function LoginPage() {
   const { isAuthenticated, login, sessionMessage } = useAuth()
@@ -43,7 +42,7 @@ function LoginPage() {
     <div className={styles.page}>
       <main className={styles.authPanel}>
         <div className={styles.brandWrapper}>
-          <Logo light size="lg" />
+          <img src="/images/altnue_admin_logo.png" alt="ALTNUE" className={styles.brandImage} />
         </div>
 
         <header className={styles.authHeader}>
