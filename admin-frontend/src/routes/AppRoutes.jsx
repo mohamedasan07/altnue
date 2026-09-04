@@ -8,7 +8,6 @@ import ProductsPage from '../pages/Products/ProductsPage'
 import OrdersPage from '../pages/Orders/OrdersPage'
 import CustomersPage from '../pages/Customers/CustomersPage'
 import AnalyticsPage from '../pages/Analytics/AnalyticsPage'
-import SettingsPage from '../pages/Settings/SettingsPage'
 import { useAuth } from '../hooks/useAuth'
 import { AUTH_STATUS } from '../context/authContext'
 
@@ -38,7 +37,6 @@ function AppRoutes() {
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>
 
