@@ -69,15 +69,19 @@
   flex-shrink: 0;
 }
 
-/* ----- Mobile drawer ----- */
+/* ----- Desktop collapsed ----- */
+.isCollapsedDesktop {
+  transform: translateX(-100%);
+}
 
+/* ----- Mobile drawer ----- */
 @media (max-width: 1024px) {
   .sidebar {
     transform: translateX(-100%);
     box-shadow: var(--shadow-xl);
   }
 
-  .sidebar.isOpen {
+  .sidebar.isOpenMobile {
     transform: translateX(0);
   }
 }

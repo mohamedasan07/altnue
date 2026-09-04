@@ -10,6 +10,12 @@ body {
   line-height: var(--line-height-normal);
   color: var(--color-text);
   background-color: var(--color-background);
+  background-image: radial-gradient(
+    800px 400px at 50% 0%,
+    rgba(236, 72, 153, 0.10),
+    transparent 70%
+  );
+  background-attachment: fixed;
 }
 
 h1,

@@ -22,13 +22,17 @@ const NAV_ITEMS = [
   { label: 'Settings', to: '/settings', icon: FiSettings },
 ]
 
-function Sidebar({ open = false, onClose }) {
+function Sidebar({ mobileOpen = false, desktopCollapsed = false, onCloseMobile }) {
   const { logout } = useAuth()
 
   return (
     <aside
-      className={classNames(styles.sidebar, open && styles.isOpen)}
-      aria-hidden={!open}
+      className={classNames(
+        styles.sidebar,
+        mobileOpen && styles.isOpenMobile,
+        desktopCollapsed && styles.isCollapsedDesktop
+      )}
+      aria-hidden={desktopCollapsed && !mobileOpen}
     >
       <div className={styles.header}>
         <Logo />
@@ -41,7 +45,7 @@ function Sidebar({ open = false, onClose }) {
               <NavLink
                 to={to}
                 end={end}
-                onClick={onClose}
+                onClick={onCloseMobile}
                 className={({ isActive }) =>
                   classNames(styles.navItem, isActive && styles.isActive)
                 }

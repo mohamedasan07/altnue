@@ -1,27 +1,41 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../components/layout/Sidebar'
 import Topbar from '../components/layout/Topbar'
+import classNames from '../utils/classNames'
 import styles from './AdminLayout.module.css'
 
 function AdminLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [desktopCollapsed, setDesktopCollapsed] = useState(false)
+
+  const handleToggleSidebar = useCallback(() => {
+    if (window.innerWidth > 1024) {
+      setDesktopCollapsed((prev) => !prev)
+    } else {
+      setMobileOpen((prev) => !prev)
+    }
+  }, [])
 
   return (
     <div className={styles.layout}>
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar
+        mobileOpen={mobileOpen}
+        desktopCollapsed={desktopCollapsed}
+        onCloseMobile={() => setMobileOpen(false)}
+      />
 
-      {sidebarOpen && (
+      {mobileOpen && (
         <button
           type="button"
           className={styles.overlay}
-          onClick={() => setSidebarOpen(false)}
+          onClick={() => setMobileOpen(false)}
           aria-label="Close menu"
         />
       )}
 
-      <div className={styles.main}>
-        <Topbar onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />
+      <div className={classNames(styles.main, desktopCollapsed && styles.mainCollapsed)}>
+        <Topbar onToggleSidebar={handleToggleSidebar} />
 
         <main className={styles.content}>
           <Outlet />

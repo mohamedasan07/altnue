@@ -1,17 +1,11 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { FiMail, FiLock, FiCheck, FiArrowRight } from 'react-icons/fi'
-import Logo from '../../components/common/Logo'
+import { FiMail, FiLock, FiArrowRight } from 'react-icons/fi'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { useAuth } from '../../hooks/useAuth'
 import styles from './LoginPage.module.css'
-
-const FEATURES = [
-  'Real-time orders, inventory and revenue',
-  'Customer insights in one place',
-  'Launch campaigns without friction',
-]
+import Logo from '../../components/common/Logo'
 
 function LoginPage() {
   const { isAuthenticated, login, sessionMessage } = useAuth()
@@ -47,58 +41,19 @@ function LoginPage() {
 
   return (
     <div className={styles.page}>
-      {/* ----- Brand panel ----- */}
-      <aside className={styles.brandPanel}>
-        <div className={styles.brandContent}>
-          <Logo light size="lg" />
-
-          <div className={styles.heroText}>
-            <h1 className={styles.heroTitle}>
-              Command your store
-              <br />
-              from one place.
-            </h1>
-            <p className={styles.heroSubtitle}>
-              The ALTNUE admin gives you a real-time view of everything that
-              keeps your business moving.
-            </p>
-          </div>
-
-          <ul className={styles.features}>
-            {FEATURES.map((feature) => (
-              <li key={feature}>
-                <span className={styles.check}>
-                  <FiCheck size={14} />
-                </span>
-                {feature}
-              </li>
-            ))}
-          </ul>
-
-          <div className={styles.illustration} aria-hidden="true">
-            <div className={styles.illustrationCard}>
-              <div className={styles.illustrationBar} />
-              <div className={styles.illustrationLine} />
-              <div className={styles.illustrationLine} />
-              <div className={styles.illustrationLine} />
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* ----- Login panel ----- */}
       <main className={styles.authPanel}>
-        <div className={styles.authCard}>
-          <div className={styles.mobileLogo}>
-            <Logo />
-          </div>
+        <div className={styles.brandWrapper}>
+          <Logo light size="lg" />
+        </div>
 
-          <header className={styles.authHeader}>
-            <h2 className={styles.authTitle}>Welcome back</h2>
-            <p className={styles.authSubtitle}>
-              Sign in to your admin account to continue.
-            </p>
-          </header>
+        <header className={styles.authHeader}>
+          <h2 className={styles.authTitle}>Welcome back</h2>
+          <p className={styles.authSubtitle}>
+            Sign in to your admin account to continue.
+          </p>
+        </header>
+
+        <div className={styles.authCard}>
 
           <form className={styles.form} onSubmit={handleSubmit} noValidate>
             {error && (
