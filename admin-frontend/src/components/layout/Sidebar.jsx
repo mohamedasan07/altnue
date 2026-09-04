@@ -5,7 +5,6 @@ import {
   FiShoppingBag,
   FiUsers,
   FiBarChart2,
-  FiSettings,
   FiLogOut,
 } from 'react-icons/fi'
 import classNames from '../../utils/classNames'
@@ -19,7 +18,6 @@ const NAV_ITEMS = [
   { label: 'Orders', to: '/orders', icon: FiShoppingBag },
   { label: 'Customers', to: '/customers', icon: FiUsers },
   { label: 'Analytics', to: '/analytics', icon: FiBarChart2 },
-  { label: 'Settings', to: '/settings', icon: FiSettings },
 ]
 
 function Sidebar({ mobileOpen = false, desktopCollapsed = false, onCloseMobile }) {
