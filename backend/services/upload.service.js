@@ -77,3 +77,22 @@ export async function uploadImage(file) {
     publicId: result.public_id,
   };
 }
+
+/**
+ * Delete an image from Cloudinary by its public ID.
+ *
+ * @param {string} publicId
+ * @returns {Promise<void>}
+ */
+export async function deleteImage(publicId) {
+  if (!publicId) return;
+  const cloudinary = getCloudinary();
+  if (!cloudinary) return;
+
+  try {
+    await cloudinary.uploader.destroy(publicId);
+    logger.info(`[upload] Deleted Cloudinary asset: ${publicId}`);
+  } catch (err) {
+    logger.error(`[upload] Failed to delete Cloudinary asset ${publicId}:`, err);
+  }
+}

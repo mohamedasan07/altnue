@@ -34,7 +34,7 @@ export async function uploadImage(file, onProgress) {
         }
       },
     })
-    return data?.secureUrl
+    return { url: data?.secureUrl, publicId: data?.publicId }
   } catch (error) {
     throw normalizeError(error)
   }

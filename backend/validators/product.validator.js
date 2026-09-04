@@ -147,6 +147,75 @@ export function validateProductPayload(body = {}, { partial = false } = {}) {
     data.isActive = toBoolean(body.is_active);
   }
 
+  // --- sizes (optional array of strings) ---
+  const VALID_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '26', '28', '30', '32', '34', '36'];
+  if (body.sizes !== undefined && body.sizes !== null) {
+    if (!Array.isArray(body.sizes)) {
+      errors.push('sizes must be an array');
+    } else {
+      const uniqueSizes = [...new Set(body.sizes.map(s => String(s).trim()))];
+      const invalidSizes = uniqueSizes.filter(s => !VALID_SIZES.includes(s));
+      if (invalidSizes.length > 0) {
+        errors.push(`invalid sizes: ${invalidSizes.join(', ')}`);
+      } else {
+        // preserve user selection order from uniqueSizes
+        data.sizes = uniqueSizes;
+      }
+    }
+  }
+
+  // --- imageGallery (optional array of strings, max 2) ---
+  if (body.imageGallery !== undefined && body.imageGallery !== null) {
+    if (!Array.isArray(body.imageGallery)) {
+      errors.push('imageGallery must be an array');
+    } else {
+      const gallery = body.imageGallery
+        .map(url => String(url).trim())
+        .filter(url => url !== '');
+      if (gallery.length > 2) {
+        errors.push('imageGallery can contain a maximum of 2 additional images');
+      } else {
+        const invalidUrls = gallery.filter(url => !isValidImageUrl(url));
+        if (invalidUrls.length > 0) {
+          errors.push('all images in imageGallery must be valid http(s) URLs');
+        } else {
+          data.imageGallery = gallery;
+        }
+      }
+    }
+  }
+
+  // --- imageMetadata (optional array of objects) ---
+  if (body.imageMetadata !== undefined && body.imageMetadata !== null) {
+    if (!Array.isArray(body.imageMetadata)) {
+      errors.push('imageMetadata must be an array');
+    } else if (body.imageMetadata.length > 3) {
+      errors.push('imageMetadata can contain a maximum of 3 images');
+    } else {
+      const validMetadata = [];
+      let hasError = false;
+      for (const img of body.imageMetadata) {
+        if (!img || typeof img !== 'object') {
+          errors.push('imageMetadata items must be objects');
+          hasError = true;
+          break;
+        }
+        if (!isValidImageUrl(img.url)) {
+          errors.push('all images in imageMetadata must have a valid url');
+          hasError = true;
+          break;
+        }
+        validMetadata.push({
+          url: String(img.url).trim(),
+          publicId: img.publicId ? String(img.publicId).trim() : null,
+        });
+      }
+      if (!hasError) {
+        data.imageMetadata = validMetadata;
+      }
+    }
+  }
+
   if (errors.length > 0) {
     throw new ApiError(400, errors.join('; '));
   }

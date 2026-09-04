@@ -154,12 +154,14 @@ export default function ProductPage() {
 
   const gallery = [
     product.imageUrl,
-    product.secondaryImageUrl,
-    product.imageUrl2,
-    ...(product.imageGallery || []),
+    ...(Array.isArray(product.imageGallery) ? product.imageGallery : []),
   ]
     .map(resolveUrl)
     .filter(Boolean);
+
+  const productSizes = Array.isArray(product.sizes) && product.sizes.length > 0
+    ? product.sizes
+    : SIZES;
 
   const handleAdd = () => {
     if (outOfStock || added) return;
@@ -238,7 +240,7 @@ export default function ProductPage() {
             <motion.div variants={fadeUp} className={styles.choosers}>
 
               <SizeSelector
-                sizes={SIZES}
+                sizes={productSizes}
                 value={size}
                 onChange={setSize}
                 unavailable={unavailable}

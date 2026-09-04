@@ -10,6 +10,7 @@ import {
   insertCategory,
   deleteCategoryById,
 } from '../repositories/product.repository.js';
+import { deleteImage } from './upload.service.js';
 
 /**
  * Product domain service — full CRUD backed exclusively by Supabase.
@@ -61,6 +62,9 @@ function normalizeProduct(row) {
     price: safeNumber(row.price, 0),
     oldPrice: safeNumber(row.old_price, 0),
     imageUrl: safeString(row.image_url || row.image),
+    imageGallery: Array.isArray(row.image_gallery) ? row.image_gallery : [],
+    imageMetadata: Array.isArray(row.image_metadata) ? row.image_metadata : [],
+    sizes: Array.isArray(row.sizes) ? row.sizes : [],
     stockQuantity: safeNumber(row.stock_quantity, 0),
     sale: Boolean(row.is_sale),
     is_active: Boolean(row.is_active),
@@ -195,6 +199,9 @@ export async function createProduct(input) {
     price: input.price,
     old_price: input.oldPrice ?? null,
     image_url: input.imageUrl,
+    image_gallery: input.imageGallery ?? [],
+    image_metadata: input.imageMetadata ?? [],
+    sizes: input.sizes ?? [],
     stock_quantity: input.stockQuantity,
     is_sale: input.sale ?? false,
     is_active: input.isActive ?? true,
@@ -240,6 +247,20 @@ export async function updateProduct(id, input) {
   if (input.price !== undefined) patch.price = input.price;
   if (input.oldPrice !== undefined) patch.old_price = input.oldPrice ?? null;
   if (input.imageUrl !== undefined) patch.image_url = input.imageUrl;
+  if (input.imageGallery !== undefined) patch.image_gallery = input.imageGallery;
+  if (input.imageMetadata !== undefined) {
+    patch.image_metadata = input.imageMetadata;
+    const existingMetadata = Array.isArray(existing.image_metadata) ? existing.image_metadata : [];
+    const newMetadata = Array.isArray(input.imageMetadata) ? input.imageMetadata : [];
+    const newPublicIds = new Set(newMetadata.map(img => img.publicId).filter(Boolean));
+    for (const oldImg of existingMetadata) {
+      if (oldImg.publicId && !newPublicIds.has(oldImg.publicId)) {
+        // Do not await here if we want to fire-and-forget, but awaiting ensures consistency
+        deleteImage(oldImg.publicId).catch(err => logger.error('[products] deleteImage error', err));
+      }
+    }
+  }
+  if (input.sizes !== undefined) patch.sizes = input.sizes;
   if (input.stockQuantity !== undefined) patch.stock_quantity = input.stockQuantity;
   if (input.sale !== undefined) patch.is_sale = input.sale;
   if (input.isActive !== undefined) patch.is_active = input.isActive;
@@ -276,6 +297,13 @@ export async function deleteProduct(id) {
 
   const result = await deleteProductById(numericId);
   if (!result.ok) throw toDbError('delete product', result);
+
+  const existingMetadata = Array.isArray(existing.image_metadata) ? existing.image_metadata : [];
+  for (const oldImg of existingMetadata) {
+    if (oldImg.publicId) {
+      deleteImage(oldImg.publicId).catch(err => logger.error('[products] deleteImage error', err));
+    }
+  }
 
   return true;
 }

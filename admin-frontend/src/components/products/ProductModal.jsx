@@ -1,13 +1,88 @@
-import { useState } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import Modal from '../ui/Modal'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
-import ImageUploader from './ImageUploader'
+import ImageGalleryUploader from './ImageGalleryUploader'
 import { formatCategory } from '../../utils/productStatus'
 import styles from './ProductModal.module.css'
 
+const AVAILABLE_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '26', '28', '30', '32', '34', '36']
+
+function SizesMultiSelect({ value, onChange, label, hint }) {
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef(null)
+
+  const selected = Array.isArray(value) ? value : []
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const toggleSize = (size) => {
+    let next
+    if (selected.includes(size)) {
+      next = selected.filter(s => s !== size)
+    } else {
+      next = [...selected, size]
+      next.sort((a, b) => AVAILABLE_SIZES.indexOf(a) - AVAILABLE_SIZES.indexOf(b))
+    }
+    onChange(next)
+  }
+
+  return (
+    <div className={styles.multiSelectField} ref={containerRef}>
+      {label && <label className={styles.selectLabel}>{label}</label>}
+      <div
+        className={`${styles.select} ${styles.multiSelectTrigger} ${open ? styles.open : ''}`}
+        onClick={() => setOpen(prev => !prev)}
+      >
+        <span className={selected.length ? styles.valueText : styles.placeholderText}>
+          {selected.length ? selected.join(', ') : 'Select sizes...'}
+        </span>
+      </div>
+
+      {open && (
+        <div className={styles.dropdown}>
+          {AVAILABLE_SIZES.map(size => {
+            const isSelected = selected.includes(size)
+            return (
+              <label key={size} className={styles.dropdownOption}>
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => toggleSize(size)}
+                />
+                <span>{size}</span>
+              </label>
+            )
+          })}
+        </div>
+      )}
+      {hint && <span className={styles.hint}>{hint}</span>}
+    </div>
+  )
+}
+
 function buildInitialForm(mode, product, categories) {
   if (mode === 'edit' && product) {
+    let images = []
+    if (product.imageMetadata && product.imageMetadata.length > 0) {
+      images = product.imageMetadata
+    } else {
+      if (product.imageUrl) images.push({ url: product.imageUrl, publicId: null })
+      if (product.imageGallery) {
+        product.imageGallery.forEach(url => {
+          if (url) images.push({ url, publicId: null })
+        })
+      }
+    }
+
     return {
       name: product.name ?? '',
       description: product.description ?? '',
@@ -15,8 +90,8 @@ function buildInitialForm(mode, product, categories) {
       price: product.price != null ? String(product.price) : '',
       stockQuantity:
         product.stockQuantity != null ? String(product.stockQuantity) : '',
-      imageUrl: product.imageUrl ?? '',
-      sizes: '',
+      images,
+      sizes: Array.isArray(product.sizes) ? product.sizes : [],
       colors: '',
       sale: Boolean(product.sale),
       is_active: Boolean(product.is_active),
@@ -29,8 +104,8 @@ function buildInitialForm(mode, product, categories) {
     category: categories[0] ?? '',
     price: '',
     stockQuantity: '',
-    imageUrl: '',
-    sizes: '',
+    images: [],
+    sizes: [],
     colors: '',
     sale: false,
     is_active: true,
@@ -88,7 +163,7 @@ function ProductModal({ open, mode = 'add', product, categories, onClose, onSubm
       next.stockQuantity = 'Enter a valid stock quantity'
     }
 
-    if (!form.imageUrl.trim()) next.imageUrl = 'Product image is required'
+    if (form.images.length === 0) next.images = 'At least one product image is required'
 
     setErrors(next)
     return Object.keys(next).length === 0
@@ -106,7 +181,10 @@ function ProductModal({ open, mode = 'add', product, categories, onClose, onSubm
         category: form.category,
         price: Number(form.price),
         stockQuantity: Number(form.stockQuantity),
-        imageUrl: form.imageUrl.trim(),
+        imageUrl: form.images[0]?.url || '',
+        imageGallery: form.images.slice(1).map(img => img.url),
+        imageMetadata: form.images,
+        sizes: form.sizes,
         sale: Boolean(form.sale),
         is_active: Boolean(form.is_active),
       })
@@ -118,11 +196,11 @@ function ProductModal({ open, mode = 'add', product, categories, onClose, onSubm
     }
   }
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     // Keep the modal open while a request or upload is in flight so we never
     // drop work on the server mid-flight.
     if (!saving && !uploading) onClose()
-  }
+  }, [saving, uploading, onClose])
 
   return (
     <Modal
@@ -212,26 +290,23 @@ function ProductModal({ open, mode = 'add', product, categories, onClose, onSubm
           </div>
 
           <div className={styles.full}>
-            <label className={styles.uploaderLabel}>Product Image</label>
-            <ImageUploader
-              value={form.imageUrl}
-              onChange={(url) =>
-                setForm((current) => ({ ...current, imageUrl: url }))
+            <label className={styles.uploaderLabel}>Product Images (Max 3)</label>
+            <ImageGalleryUploader
+              images={form.images}
+              onChange={(images) =>
+                setForm((current) => ({ ...current, images }))
               }
-              error={errors.imageUrl}
+              error={errors.images}
               disabled={saving}
               onUploadingChange={setUploading}
             />
           </div>
 
           <div>
-            <Input
+            <SizesMultiSelect
               label="Sizes"
               value={form.sizes}
-              onChange={setField('sizes')}
-              placeholder="S, M, L, XL"
-              hint="Not persisted by the backend yet"
-              fullWidth
+              onChange={(value) => setForm((current) => ({ ...current, sizes: value }))}
             />
           </div>
 
