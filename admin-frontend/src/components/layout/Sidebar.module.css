@@ -21,6 +21,16 @@
   flex-shrink: 0;
 }
 
+.logoImage {
+  height: 32px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
 .nav {
   flex: 1;
   overflow-y: auto;

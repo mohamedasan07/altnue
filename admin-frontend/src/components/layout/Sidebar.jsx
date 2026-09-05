@@ -8,7 +8,6 @@ import {
   FiLogOut,
 } from 'react-icons/fi'
 import classNames from '../../utils/classNames'
-import Logo from '../common/Logo'
 import { useAuth } from '../../hooks/useAuth'
 import styles from './Sidebar.module.css'
 
@@ -33,7 +32,11 @@ function Sidebar({ mobileOpen = false, desktopCollapsed = false, onCloseMobile }
       aria-hidden={desktopCollapsed && !mobileOpen}
     >
       <div className={styles.header}>
-        <Logo />
+        <img
+          src="/images/altnue_admin_logo.png"
+          alt="ALTNUE"
+          className={styles.logoImage}
+        />
       </div>
 
       <nav className={styles.nav} aria-label="Primary">
