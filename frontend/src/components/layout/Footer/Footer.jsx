@@ -6,18 +6,35 @@ const FOOTER_GROUPS = [
   {
     title: 'Shop',
     links: [
-      { to: '/collections', label: 'Collections' },
-      { to: '/cart', label: 'Cart' },
-      { to: '/wishlist', label: 'Wishlist' },
-      { to: '/login', label: 'Login' },
+      { to: '/collections', label: 'All Products' },
+      { to: '/collections?sort=newest', label: 'New Arrivals' },
+      { to: '/collections?sale=true', label: 'Sale' },
     ],
   },
   {
-    title: 'Company',
+    title: 'Collections',
     links: [
-      { to: '/', label: 'Home' },
-      { to: '/collections', label: 'About' },
-      { to: '/collections', label: 'Journal' },
+      { to: '/collections?category=tshirts', label: 'T-Shirts' },
+      { to: '/collections?category=jerseys', label: 'Jerseys' },
+      { to: '/collections?category=shirts', label: 'Shirts' },
+      { to: '/collections?category=baggy', label: 'Baggy' },
+      { to: '/collections?category=accessories', label: 'Accessories' },
+    ],
+  },
+  {
+    title: 'Account',
+    links: [
+      { to: '/login', label: 'Login' },
+      { to: '/register', label: 'Register' },
+      { to: '/cart', label: 'Cart' },
+      { to: '/wishlist', label: 'Wishlist' },
+      { to: '/profile', label: 'My Account' },
+    ],
+  },
+  {
+    title: 'Support',
+    links: [
+      { to: 'mailto:support@altnue.com', label: 'Contact', external: true },
     ],
   },
 ];
@@ -26,9 +43,13 @@ export default function Footer() {
   return (
     <footer className={styles.footer}>
       <Container className={styles.inner}>
-        <div className={styles.brandBlock}>
-          <p className={styles.brand}>ALTNUE<span className={styles.dot}>.</span></p>
-          <p className={styles.tagline}>For the Unfiltered.</p>
+        <div className={styles.topSection}>
+          <div className={styles.brandBlock}>
+            <Link to="/" aria-label="ALTNUE Home">
+              <img src="/images/altnue_admin_logo.png" alt="ALTNUE" className={styles.metallicLogo} />
+            </Link>
+            <p className={styles.tagline}>For the Unfiltered.</p>
+          </div>
         </div>
 
         <div className={styles.groups}>
@@ -38,9 +59,15 @@ export default function Footer() {
               <ul className={styles.groupList}>
                 {group.links.map((link) => (
                   <li key={link.label}>
-                    <Link to={link.to} className={styles.groupLink}>
-                      {link.label}
-                    </Link>
+                    {link.external ? (
+                      <a href={link.to} className={styles.groupLink}>
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link to={link.to} className={styles.groupLink}>
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -122,7 +122,7 @@
   width: 34px;
   height: 34px;
   border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  background: var(--color-primary);
   color: var(--color-text-on-primary);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
@@ -145,6 +145,10 @@
   color: var(--color-text-muted);
 }
 
+.bellWrapper {
+  position: relative;
+}
+
 /* ----- Dropdowns ----- */
 
 .dropdown {
@@ -156,7 +160,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
-  width: 320px;
+  width: min(320px, calc(100vw - 24px));
   max-height: 400px;
   overflow-y: auto;
   z-index: 50; /* fallback if var is missing */
@@ -232,5 +236,13 @@
 
   .userMeta {
     display: none;
+  }
+
+  .bellWrapper {
+    position: static;
+  }
+
+  .dropdown {
+    right: var(--space-4);
   }
 }

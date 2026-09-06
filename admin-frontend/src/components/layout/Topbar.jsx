@@ -182,7 +182,7 @@ function Topbar({ onToggleSidebar }) {
       </div>
 
       <div className={styles.right}>
-        <div style={{ position: 'relative' }} ref={bellRef}>
+        <div className={styles.bellWrapper} ref={bellRef}>
           <button
             type="button"
             className={styles.iconButton}

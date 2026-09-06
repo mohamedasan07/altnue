@@ -1,6 +1,5 @@
 .section {
   padding-block: var(--page-block);
-  border-bottom: 1px solid var(--color-border);
   background: var(--color-bg);
 }
 
@@ -121,4 +120,32 @@
   .skeleton {
     animation: none;
   }
+}
+
+.viewAllWrap {
+  margin-top: var(--space-10);
+  display: flex;
+  justify-content: center;
+}
+
+.viewAllBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-8);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-bg);
+  background-color: var(--color-text);
+  border: 1px solid var(--color-text);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.viewAllBtn:hover {
+  background-color: transparent;
+  color: var(--color-text);
 }

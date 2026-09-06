@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Container from '../ui/Container/Container';
 import ProductCard from '../ProductCard/ProductCard';
@@ -8,7 +9,7 @@ import styles from './ShopByCategory.module.css';
 const TABS = [
   { label: 'BESTSELLERS', slug: 'bestsellers' },
   { label: 'JERSEYS', slug: 'jerseys' },
-  { label: 'TEES', slug: 'tshirts' },
+  { label: 'TSHIRTS', slug: 'tshirts' },
   { label: 'SHIRT', slug: 'shirts' },
   { label: 'BAGGY', slug: 'baggy' },
 ];
@@ -86,6 +87,23 @@ export default function ShopByCategory({ products = [], status = 'loading' }) {
             </div>
           )}
         </motion.div>
+
+        {status !== 'loading' && filteredProducts.length > 0 && (
+          <motion.div
+            className={styles.viewAllWrap}
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.8 }}
+          >
+            <Link
+              to={activeTab === 'bestsellers' ? '/collections?sale=true' : `/collections?category=${activeTab}`}
+              className={styles.viewAllBtn}
+            >
+              View All
+            </Link>
+          </motion.div>
+        )}
       </Container>
     </section>
   );

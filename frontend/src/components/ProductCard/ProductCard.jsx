@@ -118,7 +118,6 @@ function ProductCard({
         <div className={styles.body}>
           <div className={styles.row}>
             <p className={styles.cat}>{product?.category || 'ALTNUE'}</p>
-            <Rating value={rating.value} count={rating.count} />
           </div>
           <h3 className={styles.name}>{name}</h3>
 
