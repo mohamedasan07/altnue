@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { FiPlus, FiChevronLeft, FiChevronRight, FiPackage } from 'react-icons/fi'
 import * as productService from '../../services/product.service'
 import { useToast } from '../../components/toast/useToast'
@@ -18,6 +19,8 @@ const BASE_CATEGORIES = ['tshirts', 'shirts', 'jerseys', 'accessories', 'baggy']
 
 function ProductsPage() {
   const { showToast } = useToast()
+  const [searchParams] = useSearchParams()
+  const editId = searchParams.get('edit')
 
   const [products, setProducts] = useState([])
   const [loadState, setLoadState] = useState('loading') // loading | ready | error
@@ -46,7 +49,15 @@ function ProductsPage() {
     productService
       .listProducts()
       .then((data) => {
-        if (!ignore) applyProducts(data)
+        if (ignore) return
+        applyProducts(data)
+        // Deep-link: /products?edit=<id> opens the existing edit modal.
+        if (editId) {
+          const target = (Array.isArray(data) ? data : []).find(
+            (p) => String(p.id) === String(editId),
+          )
+          if (target) setModal({ mode: 'edit', product: target })
+        }
       })
       .catch((error) => {
         if (!ignore) applyError(error.message)
@@ -54,7 +65,7 @@ function ProductsPage() {
     return () => {
       ignore = true
     }
-  }, [applyProducts, applyError])
+  }, [applyProducts, applyError, editId])
 
   const reload = () => {
     setLoadState('loading')

@@ -89,6 +89,16 @@ function Topbar({ onToggleSidebar }) {
     searchResults.orders.length > 0 ||
     searchResults.customers.length > 0
 
+  // Map an activity item to an existing admin page only when it carries a real
+  // id. Items without a safe identifier stay non-clickable.
+  const activityRoute = (activity) => {
+    if (activity.id == null) return null
+    if (activity.type === 'order') return `/orders?view=${activity.id}`
+    if (activity.type === 'update') return `/products?edit=${activity.id}`
+    if (activity.type === 'product') return `/products?edit=${activity.id}`
+    return null
+  }
+
   return (
     <header className={styles.topbar}>
       <div className={styles.left}>
@@ -125,7 +135,7 @@ function Topbar({ onToggleSidebar }) {
                           className={styles.dropdownItem}
                           onClick={() => {
                             setIsSearchOpen(false)
-                            navigate(`/products/${p.id}`)
+                            navigate(`/products?edit=${p.id}`)
                           }}
                         >
                           <span className={styles.dropdownItemTitle}>{p.name}</span>
@@ -144,7 +154,7 @@ function Topbar({ onToggleSidebar }) {
                           className={styles.dropdownItem}
                           onClick={() => {
                             setIsSearchOpen(false)
-                            navigate(`/orders/${o.id}`)
+                            navigate(`/orders?view=${o.id}`)
                           }}
                         >
                           <span className={styles.dropdownItemTitle}>Order #{o.id.slice(0,8)}</span>
@@ -163,7 +173,7 @@ function Topbar({ onToggleSidebar }) {
                           className={styles.dropdownItem}
                           onClick={() => {
                             setIsSearchOpen(false)
-                            navigate(`/customers/${c.id}`)
+                            navigate(`/customers?view=${c.id}`)
                           }}
                         >
                           <span className={styles.dropdownItemTitle}>{c.name}</span>
@@ -197,14 +207,28 @@ function Topbar({ onToggleSidebar }) {
             <div className={styles.dropdown}>
               <div className={styles.dropdownHeader}>Recent Activity</div>
               {recentActivity.length > 0 ? (
-                recentActivity.slice(0, 5).map((activity, i) => (
-                  <div key={activity.id || i} className={styles.dropdownItem}>
-                    <span className={styles.dropdownItemTitle}>{activity.title}</span>
-                    <span className={styles.dropdownItemSub}>
-                      {activity.detail} · {timeAgo(activity.time)}
-                    </span>
-                  </div>
-                ))
+                recentActivity.slice(0, 5).map((activity, i) => {
+                  const route = activityRoute(activity)
+                  const clickable = Boolean(route)
+                  return (
+                    <button
+                      type="button"
+                      key={activity.id || i}
+                      className={styles.dropdownItem}
+                      disabled={!clickable}
+                      onClick={() => {
+                        if (!clickable) return
+                        setIsNotificationsOpen(false)
+                        navigate(route)
+                      }}
+                    >
+                      <span className={styles.dropdownItemTitle}>{activity.title}</span>
+                      <span className={styles.dropdownItemSub}>
+                        {activity.detail} · {timeAgo(activity.time)}
+                      </span>
+                    </button>
+                  )
+                })
               ) : (
                 <div className={styles.emptyState}>No recent activity</div>
               )}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { FiShoppingBag } from 'react-icons/fi'
 import * as orderService from '../../services/order.service'
 import OrderTable from '../../components/orders/OrderTable'
@@ -32,7 +33,8 @@ function OrdersPage() {
   const [page, setPage] = useState(1)
   const [refresh, setRefresh] = useState(0)
 
-  const [viewOrderId, setViewOrderId] = useState(null)
+  const [searchParams] = useSearchParams()
+  const [viewOrderId, setViewOrderId] = useState(() => searchParams.get('view'))
   const requestIdRef = useRef(0)
 
   // Debounce the search box so keystrokes don't fire a request each time.

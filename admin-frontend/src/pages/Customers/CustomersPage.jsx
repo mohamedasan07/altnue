@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { FiUsers } from 'react-icons/fi'
 import * as customerService from '../../services/customer.service'
 import CustomerTable from '../../components/customers/CustomerTable'
@@ -31,7 +32,8 @@ function CustomersPage() {
   const [page, setPage] = useState(1)
   const [refresh, setRefresh] = useState(0)
 
-  const [viewCustomerId, setViewCustomerId] = useState(null)
+  const [searchParams] = useSearchParams()
+  const [viewCustomerId, setViewCustomerId] = useState(() => searchParams.get('view'))
   const requestIdRef = useRef(0)
 
   // Debounce the search box so keystrokes don't fire a request each time.

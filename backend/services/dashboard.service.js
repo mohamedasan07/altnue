@@ -335,6 +335,7 @@ export async function getRecentActivity() {
   for (const order of orders.data || []) {
     activity.push({
       type: 'order',
+      id: order.id,
       title: 'Customer placed order',
       detail: `${order.order_number} · ${Number(order.grand_total) || 0}`,
       time: order.placed_at || order.created_at || null,
@@ -344,6 +345,7 @@ export async function getRecentActivity() {
   for (const product of updatedProducts.data || []) {
     activity.push({
       type: 'update',
+      id: product.id,
       title: 'Product updated',
       detail: product.name,
       time: product.updated_at || null,
@@ -353,6 +355,7 @@ export async function getRecentActivity() {
   for (const product of lowStock.data || []) {
     activity.push({
       type: 'product',
+      id: product.id,
       title: 'Low stock alert',
       detail: `${product.name} — ${Number(product.stock_quantity) || 0} left`,
       time: product.updated_at || null,
